@@ -2,7 +2,7 @@
    Package infinite
    Module  scheduler_diario.py
 
-   Modulo para agendar as tarefas diarias do InFiniTe, atraves do agendador
+   Modulo para agendar as tarefas diarias do Infinite, atraves do agendador
    utilitario do Python (lib schedule).
 """
 

@@ -2,7 +2,7 @@
    Package infinite
    Module  scheduler_mensal.py
 
-   Modulo para agendar as tarefas mensais do InFiniTe, atraves do agendador
+   Modulo para agendar as tarefas mensais do Infinite, atraves do agendador
    utilitario do Python (lib schedule).
 """
 

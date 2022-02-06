@@ -1,7 +1,7 @@
 rem limpa as pastas temporarias da aplicacao:
-del /f /q D:\Workspace\Python\InFiniTe\logs\*.*  1>nul  2>&1
-del /f /q D:\Workspace\Python\InFiniTe\www\*.*   1>nul  2>&1
-del /f /q D:\Workspace\Python\InFiniTe\tmp\*.*   1>nul  2>&1
+del /f /q D:\Workspace\Python\Infinite\logs\*.*  1>nul  2>&1
+del /f /q D:\Workspace\Python\Infinite\www\*.*   1>nul  2>&1
+del /f /q D:\Workspace\Python\Infinite\tmp\*.*   1>nul  2>&1
 
 rem limpa as pastas de arquivos dos terminais MT5:
 del /f /q C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9AA5A2E564E1326FB93349159C9D30A4\MQL5\Files\*.*  1>nul  2>&1

@@ -267,7 +267,7 @@ def run_job(callback_func=None):
                         app_config.RT_files_all_mask)
     copy_source_destiny(app_config.RT_clock_logs, app_config.MI_shared_app_logs,
                         app_config.RT_files_all_mask)
-    logger.debug("Finalizou copia dos arquivos processados pelo InFiniTe para outra estacao.")
+    logger.debug("Finalizou copia dos arquivos processados pelo Infinite para outra estacao.")
 
     # vai executar este job apenas uma vez, se for finalizado com sucesso:
     logger.info("Finalizado job '%s' para copiar/mover arquivos para outra estacao.", job_id())
