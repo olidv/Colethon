@@ -11,6 +11,7 @@
 # Built-in/Generic modules
 import socket
 import logging
+from datetime import date, datetime
 
 # Libs/Frameworks modules
 import requests
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
 # verifica se o computador possui conexao com a internet e o site fornecido esta ok:
@@ -112,5 +113,29 @@ def open_webdriver_chrome(download_directory: str,
         logger.error("Erro ao tentar inicializar o WebDriver do Chrome:\n  %s", repr(ex))
 
     return browser
+
+
+# extrai a data do nome de um arquivo, conforme um formato especificado na mascara:
+def extract_date_file(file_name: str, file_mask: str) -> date:
+    # nao precisa se preocupar com excecoes e erros onde utilizar.
+    try:
+        return datetime.strptime(file_name, file_mask).date()
+
+    # se o nome do arquivo ou a mascara estiverem incorretos, retorna nulo.
+    except ValueError as err:
+        logger.error("Nao foi possivel obter a data do arquivo '%s' usando mascara '%s'. ERRO: %s",
+                     file_name, file_mask, repr(err))
+
+
+# extrai a data de um string, conforme um formato especificado na mascara:
+def extract_date(text: str, mask: str) -> date:
+    # nao precisa se preocupar com excecoes e erros onde utilizar.
+    try:
+        return datetime.strptime(text, mask).date()
+
+    # se o nome do arquivo ou a mascara estiverem incorretos, retorna nulo.
+    except ValueError as err:
+        logger.error("Nao foi possivel obter a data do string '%s' usando mascara '%s'. ERRO: %s",
+                     text, mask, repr(err))
 
 # ----------------------------------------------------------------------------

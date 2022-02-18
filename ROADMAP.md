@@ -7,6 +7,13 @@ Incluir arquivo de controle em todos os jobs
 Mover os arquivos de logging, para não deixar acumular na estação Dell.
     Logging do InFiniTe e Digital-Clock.
 
+Criar novo job de manutenção para apagar logs antigos
+    apagar arquivos de controle de dias anteriores (\infinite\temp\*), etc...
+
+
+--- OK --------------------------------------------------------------
+
+
 Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
     loggers:
       schedule:
@@ -18,9 +25,6 @@ Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
 
 Incluir zip do diretorio \dist\*.* no InFiniTe.
     <app>.zip
-
-Criar novo job de manutenção para apagar logs antigos
-    apagar arquivos de controle de dias anteriores (\infinite\temp\*), etc...
 
 Criar novo job para download dos arquivos de resultados das loterias da caixa.
     dia de sorte:  //*[@id="resultados"]/div[2]/ul/li/a
@@ -44,7 +48,7 @@ Criar novo job para baixar as cotações dos índices das principais bolsas no mund
 
 Mudar o codename de cada job para 3 letras ao gerar arquivo de controle (\temp).
 
-Criar tela principal com o Qt Designer, parar de usar DOS shell.
+Criar tela principal com o Qt Designer - parar de usar DOS shell.
 
 ---------------------------------------------------------------------
 

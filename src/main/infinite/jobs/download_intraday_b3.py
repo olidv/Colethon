@@ -16,6 +16,7 @@ from datetime import date, timedelta
 # Libs/Frameworks modules
 
 # Own/Project modules
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
 from infinite.jobs import commons
 from infinite.util import feriado
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
 # gera o nome do arquivo de controle para indicar status do job:
@@ -68,70 +69,98 @@ def download_cotacoes_intraday(data: date) -> bool:
         return False
 
 
-# tag de identificacao do job, para agendamento e cancelamento:
-def job_id() -> str:
-    return "INTRADAY_B3"
+# ----------------------------------------------------------------------------
+# CLASSE JOB
+# ----------------------------------------------------------------------------
 
+class DownloadIntradayB3(AbstractJob):
+    """
+    Implementacao de job para download das Cotacoes IntraDay da B3.
+    """
 
-# obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler:
-def job_interval() -> int:
-    interval = app_config.IB_job_interval
-    return interval
+    # --- PROPRIEDADES -----------------------------------------------------
 
+    @property
+    def job_id(self) -> str:
+        """
+        Tag de identificacao do job, para agendamento e cancelamento.
 
-# job para download das Cotacoes IntraDay da B3:
-def run_job(callback_func=None):
-    logger.info("Iniciando job '%s' para download das Cotacoes IntraDay da B3.", job_id())
+        :return: Retorna o id do job, unico entre todos os jobs do Infinite, normalmente
+        uma sigla de 2 ou 3 letras em maiusculo.
+        """
+        return "INTRADAY_B3"
 
-    # o processamento eh feito conforme a data atual:
-    hoje = date.today()
-    logger.debug("Processando downloads para a data '%s'", hoje)
+    @property
+    def job_interval(self) -> int:
+        """
+        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
 
-    # gera o nome do arquivo de controle para a data de hoje.
-    ctrl_file_job = arquivo_controle(hoje)
-    logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
+        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        """
+        interval = app_config.IB_job_interval
+        return interval
 
-    # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
-    if os.path.exists(ctrl_file_job):
-        # pode cancelar o job porque nao sera mais necessario por hoje.
-        logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.", job_id())
-        if callback_func is not None:
-            callback_func(job_id())
-        return  # ao cancelar o job, nao sera mais executado novamente.
-    else:
-        logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
+    # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    # verifica se o computador esta conectado a internet e se o site da B3 esta ok.
-    uri_site = app_config.B3_uri_site
-    uri_port = app_config.B3_uri_port
-    if commons.web_online(uri_site, uri_port):
-        logger.info("Conexao com Internet testada e funcionando OK.")
-    else:
-        # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
-        logger.error("Sem conexao com internet ou acesso ao site da B3.")
-        return  # ao sair do job, sem cancelar, permite executar novamente depois.
+    def run_job(self, callback_func=None) -> None:
+        """
+        Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
-    # se tudo ok ate aqui, procede aos downloads de 2 dias anteriores:
-    yesterday = hoje  # a partir da data atual ira retroceder 2 dias uteis anteriores...
-    for _ in (1, 2):
-        yesterday -= timedelta(1)  # a cada iteracao, subtrai 1 dia
-        # se esse dia for feriado ou fim de semana, entao segue subtraindo:
-        while not feriado.is_dia_util_bolsa(yesterday):  # ate encontrar dia util
-            yesterday -= timedelta(1)
+        :param callback_func: Funcao de callback a ser executada ao final do processamento
+        do job.
+        """
+        logger.info("Iniciando job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
 
-        # tenta fazer o download do arquivo ZIP conforme URL pra este job:
-        if not download_cotacoes_intraday(yesterday):
-            # interrompe e tenta novamente na proxima execucao...
+        # o processamento eh feito conforme a data atual:
+        hoje = date.today()
+        logger.debug("Processando downloads para a data '%s'", hoje)
+
+        # gera o nome do arquivo de controle para a data de hoje.
+        ctrl_file_job = arquivo_controle(hoje)
+        logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
+
+        # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
+        if os.path.exists(ctrl_file_job):
+            # pode cancelar o job porque nao sera mais necessario por hoje.
+            logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.",
+                           self.job_id)
+            if callback_func is not None:
+                callback_func(self.job_id)
+            return  # ao cancelar o job, nao sera mais executado novamente.
+        else:
+            logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
+
+        # verifica se o computador esta conectado a internet e se o site da B3 esta ok.
+        uri_site = app_config.B3_uri_site
+        uri_port = app_config.B3_uri_port
+        if commons.web_online(uri_site, uri_port):
+            logger.info("Conexao com Internet testada e funcionando OK.")
+        else:
+            # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
+            logger.error("Sem conexao com internet ou acesso ao site da B3.")
             return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
-    # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
-    open(ctrl_file_job, 'a').close()
-    logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
-                 ctrl_file_job)
+        # se tudo ok ate aqui, procede aos downloads de 2 dias anteriores:
+        yesterday = hoje  # a partir da data atual ira retroceder 2 dias uteis anteriores...
+        for _ in (1, 2):
+            yesterday -= timedelta(1)  # a cada iteracao, subtrai 1 dia
+            # se esse dia for feriado ou fim de semana, entao segue subtraindo:
+            while not feriado.is_dia_util_bolsa(yesterday):  # ate encontrar dia util
+                yesterday -= timedelta(1)
 
-    # vai executar este job apenas uma vez, se for finalizado com sucesso:
-    logger.info("Finalizado job '%s' para download das Cotacoes IntraDay da B3.", job_id())
-    if callback_func is not None:
-        callback_func(job_id())
+            # tenta fazer o download do arquivo ZIP conforme URL pra este job:
+            if not download_cotacoes_intraday(yesterday):
+                # interrompe e tenta novamente na proxima execucao...
+                return  # ao sair do job, sem cancelar, permite executar novamente depois.
+
+        # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
+        open(ctrl_file_job, 'a').close()
+        logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
+                     ctrl_file_job)
+
+        # vai executar este job apenas uma vez, se for finalizado com sucesso:
+        logger.info("Finalizado job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
+        if callback_func is not None:
+            callback_func(self.job_id)
 
 # ----------------------------------------------------------------------------

@@ -20,10 +20,10 @@ import schedule
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.parallel_task import run_threaded
-from infinite.jobs import download_ibovespa_b3
-from infinite.jobs import download_intraday_b3
-from infinite.jobs import zip_files_mql5
-from infinite.jobs import move_files_intranet
+from infinite.jobs.download_ibovespa_b3 import DownloadIbovespaB3
+from infinite.jobs.download_intraday_b3 import DownloadIntradayB3
+from infinite.jobs.zip_files_mql5 import ZipFilesMql5
+from infinite.jobs.move_files_intranet import MoveFilesIntranet
 
 
 # ----------------------------------------------------------------------------
@@ -38,6 +38,18 @@ logger = logging.getLogger(__name__)
 # FUNCOES
 # ----------------------------------------------------------------------------
 
+# configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
+def schedule_job(job_obj):
+    # o job sera executado em nova thread:
+    schedule.every(job_obj.job_interval).minutes.do(run_threaded, job_obj.run_job, cancel_job) \
+                                                .tag(job_obj.job_id)
+    logger.info("Agendado job '%s' a cada %d minutos.", job_obj.job_id, job_obj.job_interval)
+
+    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...",
+                 app_config.SC_job_delay)
+    time.sleep(app_config.SC_job_delay)
+
+
 # cancela o job fornecido:
 def cancel_job(job_id):
     schedule.clear(job_id)
@@ -48,69 +60,23 @@ def cancel_job(job_id):
 def main():
     logger.info("Iniciando agendamento dos jobs diarios...")
 
-    # mantem valores em variaveis locais para melhor performance:
-    job_delay = app_config.SC_job_delay
-    time_wait = app_config.SC_time_wait
-    loop_on = app_config.SC_loop_on
+    # Download das Cotacoes IntraDay da B3
+    schedule_job(DownloadIntradayB3())
 
-    # --- Download da Carteira Teorica do IBovespa ---------------------------
+    # Download da Carteira Teorica do IBovespa
+    schedule_job(DownloadIbovespaB3())
 
-    # configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-    job_id = download_ibovespa_b3.job_id()
-    job_interval = download_ibovespa_b3.job_interval()
-    job_func = download_ibovespa_b3.run_job
+    # Compactar arquivos CSV nos terminais MT5
+    schedule_job(ZipFilesMql5())
 
-    # o job sera executado em nova thread:
-    schedule.every(job_interval).minutes.do(run_threaded, job_func, cancel_job) \
-                                        .tag(job_id)
-    logger.info("Agendado job '%s' a cada %d minutos.", job_id, job_interval)
-
-    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...", job_delay)
-    time.sleep(job_delay)
-
-    # --- Download das Cotacoes IntraDay da B3 -------------------------------
-
-    # configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-    job_id = download_intraday_b3.job_id()
-    job_interval = download_intraday_b3.job_interval()
-    job_func = download_intraday_b3.run_job
-
-    # o job sera executado em nova thread:
-    schedule.every(job_interval).minutes.do(run_threaded, job_func, cancel_job) \
-                                        .tag(job_id)
-    logger.info("Agendado job '%s' a cada %d minutos.", job_id, job_interval)
-
-    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...", job_delay)
-    time.sleep(job_delay)
-
-    # --- Compactar arquivos CSV nos terminais MT5 ---------------------------
-
-    # configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-    job_id = zip_files_mql5.job_id()
-    job_interval = zip_files_mql5.job_interval()
-    job_func = zip_files_mql5.run_job
-
-    # o job sera executado em nova thread:
-    schedule.every(job_interval).minutes.do(run_threaded, job_func, cancel_job) \
-                                        .tag(job_id)
-    logger.info("Agendado job '%s' a cada %d minutos.", job_id, job_interval)
-
-    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...", job_delay)
-    time.sleep(job_delay)
-
-    # --- Copiar/mover arquivos para outra estacao ---------------------------
-
-    # configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-    job_id = move_files_intranet.job_id()
-    job_interval = move_files_intranet.job_interval()
-    job_func = move_files_intranet.run_job
-
-    # o job sera executado em nova thread:
-    schedule.every(job_interval).minutes.do(run_threaded, job_func, cancel_job) \
-                                        .tag(job_id)
-    logger.info("Agendado job '%s' a cada %d minutos.", job_id, job_interval)
+    # Copiar/mover arquivos para outra estacao
+    schedule_job(MoveFilesIntranet())
 
     # --- Monitoramento do Scheduler -----------------------------------------
+
+    # mantem valores em variaveis locais para melhor performance:
+    time_wait = app_config.SC_time_wait
+    loop_on = app_config.SC_loop_on
 
     # mantem o script em execucao permanente enquanto os jobs estiverem agendados...
     idles = schedule.idle_seconds()  # sera usado para verificar se ha jobs pendentes.

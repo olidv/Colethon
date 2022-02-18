@@ -9,21 +9,48 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import socket
-import logging
+from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
-import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import WebDriverException
-
 # Own/Project modules
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# CLASSE JOB
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
+class AbstractJob(ABC):
+    """
+    Classe abstrata com definicao de propriedades e metodos para criacao de jobs.
+    """
+
+    @property
+    @abstractmethod
+    def job_id(self) -> str:
+        """
+        Tag de identificacao do job, para agendamento e cancelamento.
+
+        :return: Retorna o id do job, unico entre todos os jobs do Infinite, normalmente
+        uma sigla de 2 ou 3 letras em maiusculo.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def job_interval(self) -> int:
+        """
+        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+
+        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        """
+        pass
+
+    @abstractmethod
+    def run_job(self, callback_func=None) -> None:
+        """
+        Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
+
+        :param callback_func: Funcao de callback a ser executada ao final do processamento
+        do job.
+        """
+        pass

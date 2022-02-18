@@ -19,6 +19,7 @@ from datetime import date, datetime
 import send2trash
 
 # Own/Project modules
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
 
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
 # gera o nome do arquivo de controle para indicar status do job:
@@ -100,108 +101,144 @@ def compacta_files_csv(files_date_contents: list[str], date_file_csv: date) -> N
         send2trash.send2trash(csv)
 
 
-# tag de identificacao do job, para agendamento e cancelamento:
-def job_id() -> str:
-    return "ZIP_MQL5"
+# ----------------------------------------------------------------------------
+# CLASSE JOB
+# ----------------------------------------------------------------------------
 
+class ZipFilesMql5(AbstractJob):
+    """
+    Implementacao de job para compactar arquivos CSV nos terminais MT5.
+    """
 
-# obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler:
-def job_interval() -> int:
-    interval = app_config.ZM_job_interval
-    return interval
+    # --- PROPRIEDADES -----------------------------------------------------
 
+    @property
+    def job_id(self) -> str:
+        """
+        Tag de identificacao do job, para agendamento e cancelamento.
 
-# job para compactar arquivos CSV nos terminais MT5:
-def run_job(callback_func=None):
-    logger.info("Iniciando job '%s' para compactar arquivos CSV nos terminais MT5.", job_id())
+        :return: Retorna o id do job, unico entre todos os jobs do Infinite, normalmente
+        uma sigla de 2 ou 3 letras em maiusculo.
+        """
+        return "ZIP_MQL5"
 
-    # o processamento eh feito conforme a data atual:
-    hoje = date.today()
-    logger.debug("Processando compactacao de arquivos para a data '%s'", hoje)
+    @property
+    def job_interval(self) -> int:
+        """
+        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
 
-    # gera o nome do arquivo de controle para a data de hoje.
-    ctrl_file_job = arquivo_controle(hoje)
-    logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
+        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        """
+        interval = app_config.ZM_job_interval
+        return interval
 
-    # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
-    if os.path.exists(ctrl_file_job):
-        # pode cancelar o job porque nao sera mais necessario por hoje.
-        logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.", job_id())
-        if callback_func is not None:
-            callback_func(job_id())
-        return  # ao cancelar o job, nao sera mais executado novamente.
-    else:
-        logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
+    # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    # identifica os terminais MT5 instalados na estacao:
-    mt5_instances_id = app_config.RT_mt5_instances_id
-    if len(mt5_instances_id) == 0:
-        logger.error("Nao ha terminais MT5 configurados em INI para processamento.")
-        if callback_func is not None:
-            callback_func(job_id())
-        return  # ao cancelar o job, nao sera mais executado novamente.
+    def run_job(self, callback_func=None) -> None:
+        """
+        Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
-    # percorre lista de terminais para processar cada pasta <MQL5\Files>.
-    for idt, cia in mt5_instances_id:
-        # eh necessario fazer replace com o id do terminal em cada instancia:
-        terminal_files = app_config.RT_mt5_terminal_mql5_files.replace('%id', idt)
-        logger.info("Iniciando processamento dos arquivos CSV na pasta '%s' da corretora '%s'...",
-                    terminal_files, cia.upper())
+        :param callback_func: Funcao de callback a ser executada ao final do processamento
+        do job.
+        """
+        logger.info("Iniciando job '%s' para compactar arquivos CSV nos terminais MT5.",
+                    self.job_id)
 
-        # modifica o diretorio corrente (da thread) para a pasta do terminal:
-        os.chdir(terminal_files)  # evita o caminho completo no ZIP...
+        # o processamento eh feito conforme a data atual:
+        hoje = date.today()
+        logger.debug("Processando compactacao de arquivos para a data '%s'", hoje)
 
-        # verifica se ha arquivos CSV a serem compactados na pasta do terminal:
-        files_contents = list_files_contents()
-        len_files_contents = len(files_contents)
-        if len_files_contents == 0:  # se nao tiver arquivos CSV, entao ignora...
-            continue  # prossegue para a proxima pasta de terminal MT5...
+        # gera o nome do arquivo de controle para a data de hoje.
+        ctrl_file_job = arquivo_controle(hoje)
+        logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
 
-        # efetua loop para cada conjunto de arquivos com data determinada:
-        while len_files_contents > 0:
-            # identifica o primeiro arquivo CSV da lista para compactar pela data:
-            first_file_csv = None
-            date_file_csv = None
+        # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
+        if os.path.exists(ctrl_file_job):
+            # pode cancelar o job porque nao sera mais necessario por hoje.
+            logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.",
+                           self.job_id)
+            if callback_func is not None:
+                callback_func(self.job_id)
+            return  # ao cancelar o job, nao sera mais executado novamente.
+        else:
+            logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
-            # se o arquivo CSV foi criado hoje, deve ser ignorado (em uso):
-            logger.debug("Busca arquivos CSV mais antigos na pasta 'Terminal_Files'.")
-            for csv in files_contents:
-                # soh por garantia, pega soh o nome, sem o path completo.
-                csv = os.path.basename(csv)
+        # identifica os terminais MT5 instalados na estacao:
+        mt5_instances_id = app_config.RT_mt5_instances_id
+        if len(mt5_instances_id) == 0:
+            logger.error("Nao ha terminais MT5 configurados em INI para processamento.")
+            if callback_func is not None:
+                callback_func(self.job_id)
+            return  # ao cancelar o job, nao sera mais executado novamente.
 
-                # extrai a data do arquivo para verificar se nao eh o dia de hoje:
-                date_file_csv = datetime.strptime(csv[:10], "%Y.%m.%d").date()
-                if date_file_csv != hoje:  # pode ser qualquer arquivo mais antigo.
-                    first_file_csv = csv
-                    break
+        # percorre lista de terminais para processar cada pasta <MQL5\Files>.
+        for idt, cia in mt5_instances_id:
+            # eh necessario fazer replace com o id do terminal em cada instancia:
+            terminal_files = app_config.RT_mt5_terminal_mql5_files.replace('%id', idt)
+            logger.info(
+                "Iniciando processamento dos arquivos CSV na pasta '%s' da corretora '%s'...",
+                terminal_files, cia.upper())
 
-            # se apos o loop nao encontrou nenhum arquivo CSV mais antigo:
-            if first_file_csv is None:
-                logger.debug("Nenhum arquivo CSV mais antigo na pasta 'Terminal_Files'.")
-                break  # ignora esta pasta de terminal e vai para proxima:
+            # modifica o diretorio corrente (da thread) para a pasta do terminal:
+            os.chdir(terminal_files)  # evita o caminho completo no ZIP...
 
-            # neste ponto, encontrou arquivo CSV mais antigo, para compactar:
-            logger.debug("Compactando arquivos CSV que possuem a mesma data de '%s'...",
-                         first_file_csv)
-
-            # obtem arquivos CSV presentes na pasta do terminal para a data corrente:
-            files_date_contents = list_files_date_contents(date_file_csv)
-            # verifica se ha mais arquivos com a mesma data:
-            if len(files_date_contents) == 0:  # testa soh por garantia.
-                break  # prossegue para a proxima pasta de terminal MT5...
-
-            # compacta a relacao de arquivos encontrados, na propria pasta do terminal:
-            compacta_files_csv(files_date_contents, date_file_csv)
-
-            # verifica se ainda ha mais arquivos CSV na pasta do terminal:
+            # verifica se ha arquivos CSV a serem compactados na pasta do terminal:
             files_contents = list_files_contents()
             len_files_contents = len(files_contents)
+            if len_files_contents == 0:  # se nao tiver arquivos CSV, entao ignora...
+                continue  # prossegue para a proxima pasta de terminal MT5...
 
-        logger.info("Finalizou processamento da pasta 'Terminal_Files'...")
+            # efetua loop para cada conjunto de arquivos com data determinada:
+            while len_files_contents > 0:
+                # identifica o primeiro arquivo CSV da lista para compactar pela data:
+                first_file_csv = None
+                date_file_csv = None
 
-    # vai executar este job apenas uma vez, se for finalizado com sucesso:
-    logger.info("Finalizado job '%s' para compactar arquivos CSV nos terminais MT5.", job_id())
-    if callback_func is not None:
-        callback_func(job_id())
+                # se o arquivo CSV foi criado hoje, deve ser ignorado (em uso):
+                logger.debug("Busca arquivos CSV mais antigos na pasta 'Terminal_Files'.")
+                for csv in files_contents:
+                    # soh por garantia, pega soh o nome, sem o path completo.
+                    csv = os.path.basename(csv)
+
+                    # extrai a data do arquivo para verificar se nao eh o dia de hoje:
+                    date_file_csv = datetime.strptime(csv[:10], "%Y.%m.%d").date()
+                    if date_file_csv != hoje:  # pode ser qualquer arquivo mais antigo.
+                        first_file_csv = csv
+                        break
+
+                # se apos o loop nao encontrou nenhum arquivo CSV mais antigo:
+                if first_file_csv is None:
+                    logger.debug("Nenhum arquivo CSV mais antigo na pasta 'Terminal_Files'.")
+                    break  # ignora esta pasta de terminal e vai para proxima:
+
+                # neste ponto, encontrou arquivo CSV mais antigo, para compactar:
+                logger.debug("Compactando arquivos CSV que possuem a mesma data de '%s'...",
+                             first_file_csv)
+
+                # obtem arquivos CSV presentes na pasta do terminal para a data corrente:
+                files_date_contents = list_files_date_contents(date_file_csv)
+                # verifica se ha mais arquivos com a mesma data:
+                if len(files_date_contents) == 0:  # testa soh por garantia.
+                    break  # prossegue para a proxima pasta de terminal MT5...
+
+                # compacta a relacao de arquivos encontrados, na propria pasta do terminal:
+                compacta_files_csv(files_date_contents, date_file_csv)
+
+                # verifica se ainda ha mais arquivos CSV na pasta do terminal:
+                files_contents = list_files_contents()
+                len_files_contents = len(files_contents)
+
+            logger.info("Finalizou processamento da pasta 'Terminal_Files'...")
+
+        # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
+        open(ctrl_file_job, 'a').close()
+        logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
+                     ctrl_file_job)
+
+        # vai executar este job apenas uma vez, se for finalizado com sucesso:
+        logger.info("Finalizado job '%s' para compactar arquivos CSV nos terminais MT5.",
+                    self.job_id)
+        if callback_func is not None:
+            callback_func(self.job_id)
 
 # ----------------------------------------------------------------------------

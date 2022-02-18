@@ -14,11 +14,15 @@ import glob
 import shutil
 import time
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 # Libs/Frameworks modules
+import send2trash
+
 # Own/Project modules
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
+from infinite.jobs import commons
 
 
 # ----------------------------------------------------------------------------
@@ -30,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
 # gera o nome do arquivo de controle para indicar status do job:
@@ -179,99 +183,239 @@ def move_source_destiny(src_path: str, dst_path: str, mask_files: str) -> None:
                      src_path, dst_path, repr(ex))
 
 
-# tag de identificacao do job, para agendamento e cancelamento:
-def job_id() -> str:
-    return "MOVE_INTRANET"
+# realiza limpeza da pasta de logs, apagando os arquivos mais antigos (do corte pra tras):
+def delete_old_logs(src_path: str, mask_files: str, cut_off: int, mask_date: str) -> None:
+    try:
+        # identifica a data de corte - o processamento eh feito conforme a data atual:
+        date_cutoff = date.today() - timedelta(days=cut_off)
+        logger.info("Vai apagar todos os arquivos de log em '%s' anteriores a '%s'.",
+                    src_path, date_cutoff)
+
+        # busca todos os arquivos de log na pasta de origem, a serem considerados para exclusao:
+        dir_contents, len_dir_contents = get_dir_contents(src_path, mask_files)
+
+        # assegura que existam arquivos de log a serem deletados:
+        if len_dir_contents == 0:
+            # se a pasta estiver vazia, entao nada a fazer aqui.
+            logger.info("Nenhum arquivo de log encontrado em '%s' para exclusao.", src_path)
+            return
+
+        # percorre a lista de arquivos de log encontrados e verifica se deve excluir:
+        del_count = 0
+        for log_file in dir_contents:
+            # extrai a data do arquivo para verificar se eh anterior ao corte:
+            date_log_file = commons.extract_date_file(os.path.basename(log_file), mask_date)
+            if date_log_file is not None and date_log_file < date_cutoff:
+                # apaga este arquivo mais antigo:
+                send2trash.send2trash(log_file)
+                del_count += 1
+
+        if del_count == 0:
+            logger.info("Nenhum arquivo de log encontrado em '%s' para exclusao.", src_path)
+        elif del_count == 1:
+            logger.info("Excluido apenas 1 arquivo de log em '%s'.", src_path)
+        else:
+            logger.info("Foram excluidos '%d' arquivos de log em '%s'.", del_count, src_path)
+
+    # qualquer erro aborta a operacao e ignora por hoje...
+    except OSError as err:
+        logger.error("Nao foi possivel apagar arquivos de log em '%s'. ERRO: %s",
+                     src_path, repr(err))
+    except Exception as ex:
+        logger.error("Nao foi possivel apagar arquivos de log em '%s'. ERRO: %s",
+                     src_path, repr(ex))
 
 
-# obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler:
-def job_interval() -> int:
-    interval = app_config.MI_job_interval
-    return interval
+# realiza limpeza da pasta temp, apagando os arquivos de controle mais antigos (do corte pra tras):
+def delete_old_ctrl(src_path: str, mask_files: str, cut_off: int, mask_date: str) -> None:
+    try:
+        # identifica a data de corte - o processamento eh feito conforme a data atual:
+        date_cutoff = date.today() - timedelta(days=cut_off)
+        logger.info("Vai apagar todos os arquivos de controle em '%s' anteriores a '%s'.",
+                    src_path, date_cutoff)
+
+        # busca todos os arquivos de controle na pasta temp, a serem considerados para exclusao:
+        dir_contents, len_dir_contents = get_dir_contents(src_path, mask_files)
+
+        # assegura que existam arquivos de controle a serem deletados:
+        if len_dir_contents == 0:
+            # se a pasta estiver vazia, entao nada a fazer aqui.
+            logger.info("Nenhum arquivo de controle encontrado em '%s' para exclusao.", src_path)
+            return
+
+        # percorre a lista de arquivos de controle encontrados e verifica se deve excluir:
+        del_count = 0
+        for ctrl_file in dir_contents:
+            # extrai a data do arquivo para verificar se eh anterior ao corte:
+            ctrl_file_name = os.path.basename(ctrl_file)
+            date_log_file = commons.extract_date(ctrl_file_name[1:11], mask_date)
+            if date_log_file is not None and date_log_file < date_cutoff:
+                # apaga este arquivo mais antigo:
+                send2trash.send2trash(ctrl_file)
+                del_count += 1
+
+        if del_count == 0:
+            logger.info("Nenhum arquivo de controle encontrado em '%s' para exclusao.", src_path)
+        elif del_count == 1:
+            logger.info("Excluido apenas 1 arquivo de controle em '%s'.", src_path)
+        else:
+            logger.info("Foram excluidos '%d' arquivos de controle em '%s'.", del_count, src_path)
+
+    # qualquer erro aborta a operacao e ignora por hoje...
+    except OSError as err:
+        logger.error("Nao foi possivel apagar arquivos de log em '%s'. ERRO: %s",
+                     src_path, repr(err))
+    except Exception as ex:
+        logger.error("Nao foi possivel apagar arquivos de log em '%s'. ERRO: %s",
+                     src_path, repr(ex))
 
 
-# job para copiar/mover arquivos para outra estacao:
-def run_job(callback_func=None):
-    logger.info("Iniciando job '%s' para copiar/mover arquivos para outra estacao.", job_id())
+# ----------------------------------------------------------------------------
+# CLASSE JOB
+# ----------------------------------------------------------------------------
 
-    # o processamento eh feito conforme a data atual:
-    hoje = date.today()
-    logger.debug("Processando copia/transferencia de arquivos para a data '%s'", hoje)
+class MoveFilesIntranet(AbstractJob):
+    """
+    Implementacao de job para copiar/mover arquivos para outra estacao.
+    """
 
-    # gera o nome do arquivo de controle para a data de hoje.
-    ctrl_file_job = arquivo_controle(hoje)
-    logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
+    # --- PROPRIEDADES -----------------------------------------------------
 
-    # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
-    if os.path.exists(ctrl_file_job):
-        # pode cancelar o job porque nao sera mais necessario por hoje.
-        logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.", job_id())
+    @property
+    def job_id(self) -> str:
+        """
+        Tag de identificacao do job, para agendamento e cancelamento.
+
+        :return: Retorna o id do job, unico entre todos os jobs do Infinite, normalmente
+        uma sigla de 2 ou 3 letras em maiusculo.
+        """
+        return "MOVE_INTRANET"
+
+    @property
+    def job_interval(self) -> int:
+        """
+        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+
+        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        """
+        interval = app_config.MI_job_interval
+        return interval
+
+    # --- METODOS DE INSTANCIA -----------------------------------------------
+
+    def run_job(self, callback_func=None) -> None:
+        """
+        Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
+
+        :param callback_func: Funcao de callback a ser executada ao final do processamento
+        do job.
+        """
+        logger.info("Iniciando job '%s' para copiar/mover arquivos para outra estacao.",
+                    self.job_id)
+
+        # o processamento eh feito conforme a data atual:
+        hoje = date.today()
+        logger.debug("Processando copia/transferencia de arquivos para a data '%s'", hoje)
+
+        # gera o nome do arquivo de controle para a data de hoje.
+        ctrl_file_job = arquivo_controle(hoje)
+        logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
+
+        # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.
+        if os.path.exists(ctrl_file_job):
+            # pode cancelar o job porque nao sera mais necessario por hoje.
+            logger.warning("O job '%s' ja foi concluido hoje mais cedo e sera cancelado.",
+                           self.job_id)
+            if callback_func is not None:
+                callback_func(self.job_id)
+            return  # ao cancelar o job, nao sera mais executado novamente.
+        else:
+            logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
+
+        # verifica se o computador esta conectado na rede interna e esta ok para copias:
+        if intranet_online(app_config.MI_shared_folder):
+            logger.info("Conexao com rede interna (Intranet) testada e funcionando OK.")
+        else:
+            # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
+            logger.error("Sem conexao com rede interna (Intranet).")
+            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+
+        # --- Copia arquivos dos terminais MT5 para outra estacao ----------------------
+
+        # identifica os terminais MT5 instalados na estacao:
+        mt5_instances_id = app_config.RT_mt5_instances_id
+        if len(mt5_instances_id) == 0:
+            logger.error("Nao ha terminais MT5 configurados em INI para processamento.")
+            if callback_func is not None:
+                callback_func(self.job_id)
+            return  # ao cancelar o job, nao sera mais executado novamente.
+
+        # percorre lista de terminais para processar cada pasta <MQL5\Files>.
+        for idt, cia in mt5_instances_id:
+            logger.info("Iniciando copia dos arquivos no terminal '%s' da corretora '%s'...",
+                        idt, cia.upper())
+
+            # arquivos de origem: faz replace com o id do terminal em cada instancia:
+            terminal_logs = app_config.RT_mt5_terminal_logs.replace('%id', idt)
+            terminal_mql5_files = app_config.RT_mt5_terminal_mql5_files.replace('%id', idt)
+            terminal_mql5_logs = app_config.RT_mt5_terminal_mql5_logs.replace('%id', idt)
+
+            # arquivos de destino: faz replace com o nome da corretora em cada instancia:
+            cia_terminal_logs = app_config.MI_cia_terminal_logs.replace('%id', cia)
+            cia_mql5_files = app_config.MI_cia_mql5_files.replace('%id', cia)
+            cia_mql5_logs = app_config.MI_cia_mql5_logs.replace('%id', cia)
+
+            # realiza copia/mocao de arquivos em cada pasta da origem para o respectivo destino:
+            copy_source_destiny(terminal_logs, cia_terminal_logs, app_config.RT_files_log_mask)
+            move_source_destiny(terminal_mql5_files, cia_mql5_files, app_config.RT_files_zip_mask)
+            copy_source_destiny(terminal_mql5_logs, cia_mql5_logs, app_config.RT_files_log_mask)
+            logger.debug("Finalizou copia/mocao dos arquivos no terminal '%s' da corretora '%s'.",
+                         idt, cia.upper())
+
+            # Uma vez movidos/copiados os arquivos de logging, eh preciso apaga-los, deixando apenas
+            # os arquivos gerados/tratados na data corrente, para evitar encher o HD.
+            delete_old_logs(terminal_logs, app_config.MI_terminal_log_files_mask,
+                            app_config.MI_terminal_log_cutoff, app_config.MI_terminal_log_mask)
+            delete_old_logs(terminal_mql5_logs, app_config.MI_terminal_log_files_mask,
+                            app_config.MI_terminal_log_cutoff, app_config.MI_terminal_log_mask)
+
+        # --- Move arquivos 'crashes' da plataforma MT5 para outra estacao ----------------------
+
+        move_source_destiny(app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes,
+                            app_config.RT_files_all_mask)
+        logger.debug("Finalizou mocao dos arquivos 'crashes' do MT5 '%s' para outra estacao '%s'.",
+                     app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes)
+
+        # --- Move arquivos baixados e gerados pelo InFinite para outra estacao ---------------
+
+        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
+                            app_config.RT_files_all_mask)
+        logger.debug("Finalizou mocao dos arquivos baixados pelo Infinite para outra estacao.")
+
+        # --- Copia arquivos de logging gerados pelo InFinite e Digital-Clock -----------------
+
+        copy_source_destiny(app_config.RT_log_path, app_config.MI_shared_app_logs,
+                            app_config.RT_files_all_mask)
+        copy_source_destiny(app_config.RT_clock_logs, app_config.MI_shared_clock_logs,
+                            app_config.RT_files_all_mask)
+        logger.debug("Finalizou copia dos arquivos logging do Infinite e Clock para outra estacao.")
+
+        # Uma vez movidos/copiados os arquivos de logging, eh preciso apaga-los, deixando apenas os
+        # arquivos gerados/tratados na data corrente, para evitar encher o HD.
+        delete_old_logs(app_config.RT_log_path, app_config.MI_app_log_files_mask,
+                        app_config.MI_app_log_cutoff, app_config.MI_app_log_mask)
+        delete_old_ctrl(app_config.RT_tmp_path, app_config.MI_ctrl_log_files_mask,
+                        app_config.MI_ctrl_log_cutoff, app_config.MI_ctrl_log_mask)
+
+        # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
+        open(ctrl_file_job, 'a').close()
+        logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
+                     ctrl_file_job)
+
+        # vai executar este job apenas uma vez, se for finalizado com sucesso:
+        logger.info("Finalizado job '%s' para copiar/mover arquivos para outra estacao.",
+                    self.job_id)
         if callback_func is not None:
-            callback_func(job_id())
-        return  # ao cancelar o job, nao sera mais executado novamente.
-    else:
-        logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
-
-    # verifica se o computador esta conectado na rede interna e esta ok para copias:
-    if intranet_online(app_config.MI_shared_folder):
-        logger.info("Conexao com rede interna (Intranet) testada e funcionando OK.")
-    else:
-        # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
-        logger.error("Sem conexao com rede interna (Intranet).")
-        return  # ao sair do job, sem cancelar, permite executar novamente depois.
-
-    # --- Copia arquivos dos terminais MT5 para outra estacao ----------------------
-
-    # identifica os terminais MT5 instalados na estacao:
-    mt5_instances_id = app_config.RT_mt5_instances_id
-    if len(mt5_instances_id) == 0:
-        logger.error("Nao ha terminais MT5 configurados em INI para processamento.")
-        if callback_func is not None:
-            callback_func(job_id())
-        return  # ao cancelar o job, nao sera mais executado novamente.
-
-    # percorre lista de terminais para processar cada pasta <MQL5\Files>.
-    for idt, cia in mt5_instances_id:
-        logger.info("Iniciando copia dos arquivos no terminal '%s' da corretora '%s'...",
-                    idt, cia.upper())
-
-        # arquivos de origem: faz replace com o id do terminal em cada instancia:
-        terminal_logs = app_config.RT_mt5_terminal_logs.replace('%id', idt)
-        terminal_mql5_files = app_config.RT_mt5_terminal_mql5_files.replace('%id', idt)
-        terminal_mql5_logs = app_config.RT_mt5_terminal_mql5_logs.replace('%id', idt)
-
-        # arquivos de destino: faz replace com o nome da corretora em cada instancia:
-        cia_terminal_logs = app_config.MI_cia_terminal_logs.replace('%id', cia)
-        cia_mql5_files = app_config.MI_cia_mql5_files.replace('%id', cia)
-        cia_mql5_logs = app_config.MI_cia_mql5_logs.replace('%id', cia)
-
-        # realiza copia de arquivos em cada pasta da origem para o respectivo destino:
-        copy_source_destiny(terminal_logs, cia_terminal_logs, app_config.RT_files_log_mask)
-        move_source_destiny(terminal_mql5_files, cia_mql5_files, app_config.RT_files_zip_mask)
-        copy_source_destiny(terminal_mql5_logs, cia_mql5_logs, app_config.RT_files_log_mask)
-        logger.debug("Finalizou copia dos arquivos no terminal '%s' da corretora '%s'.",
-                     idt, cia.upper())
-
-    # --- Copia arquivos da plataforma MT5 para outra estacao ----------------------
-
-    move_source_destiny(app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes,
-                        app_config.RT_files_all_mask)
-    logger.debug("Finalizou copia dos arquivos de log no MT5 '%s' para outra estacao '%s'.",
-                 app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes)
-
-    # --- Move arquivos baixados e gerados pelo InFinite para outra estacao ---------------
-
-    move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
-                        app_config.RT_files_all_mask)
-    copy_source_destiny(app_config.RT_log_path, app_config.MI_shared_app_logs,
-                        app_config.RT_files_all_mask)
-    copy_source_destiny(app_config.RT_clock_logs, app_config.MI_shared_app_logs,
-                        app_config.RT_files_all_mask)
-    logger.debug("Finalizou copia dos arquivos processados pelo Infinite para outra estacao.")
-
-    # vai executar este job apenas uma vez, se for finalizado com sucesso:
-    logger.info("Finalizado job '%s' para copiar/mover arquivos para outra estacao.", job_id())
-    if callback_func is not None:
-        callback_func(job_id())
+            callback_func(self.job_id)
 
 # ----------------------------------------------------------------------------

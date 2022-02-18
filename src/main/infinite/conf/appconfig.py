@@ -92,7 +92,20 @@ class AppConfig:
     MI_shared_mt5_crashes: str = ''
     MI_shared_app_www: str = ''
     MI_shared_app_logs: str = ''
+    MI_shared_clock_logs: str = ''
+
     MI_ctrl_file_mask: str = ''
+
+    MI_app_log_files_mask: str = ''
+    MI_app_log_mask: str = ''
+    MI_ctrl_log_files_mask: str = ''
+    MI_ctrl_log_mask: str = ''
+    MI_terminal_log_files_mask: str = ''
+    MI_terminal_log_mask: str = ''
+
+    MI_app_log_cutoff: int = 0
+    MI_ctrl_log_cutoff: int = 0
+    MI_terminal_log_cutoff: int = 0
 
     # Parametrizacao do mercado de FOREX:
     FX_feriados_forex: list[tuple] = None
@@ -170,7 +183,20 @@ class AppConfig:
         self.MI_shared_mt5_crashes = parser.get("MOVE_INTRANET", "shared_mt5_crashes")
         self.MI_shared_app_www = parser.get("MOVE_INTRANET", "shared_app_www")
         self.MI_shared_app_logs = parser.get("MOVE_INTRANET", "shared_app_logs")
+        self.MI_shared_clock_logs = parser.get("MOVE_INTRANET", "shared_clock_logs")
+
         self.MI_ctrl_file_mask = parser.get("MOVE_INTRANET", "ctrl_file_mask")
+
+        self.MI_app_log_files_mask = parser.get("MOVE_INTRANET", "app_log_files_mask")
+        self.MI_app_log_mask = parser.get("MOVE_INTRANET", "app_log_mask")
+        self.MI_ctrl_log_files_mask = parser.get("MOVE_INTRANET", "ctrl_log_files_mask")
+        self.MI_ctrl_log_mask = parser.get("MOVE_INTRANET", "ctrl_log_mask")
+        self.MI_terminal_log_files_mask = parser.get("MOVE_INTRANET", "terminal_log_files_mask")
+        self.MI_terminal_log_mask = parser.get("MOVE_INTRANET", "terminal_log_mask")
+
+        self.MI_app_log_cutoff = parser.getint("MOVE_INTRANET", "app_log_cutoff")
+        self.MI_ctrl_log_cutoff = parser.getint("MOVE_INTRANET", "ctrl_log_cutoff")
+        self.MI_terminal_log_cutoff = parser.getint("MOVE_INTRANET", "terminal_log_cutoff")
 
         # Parametrizacao do mercado de FOREX:
         datas = parser.get("FOREX", "feriados_forex").split(',')
