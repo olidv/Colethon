@@ -332,6 +332,11 @@ class MoveFilesIntranet(AbstractJob):
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
+        # apaga o arquivo temporario anterior que indica final de processamento do job, se existir:
+        temp_safe_del = os.path.join(app_config.MI_shared_app_base, app_config.MI_temp_safe_del)
+        if os.path.isfile(temp_safe_del):
+            os.remove(temp_safe_del)
+
         # verifica se o computador esta conectado na rede interna e esta ok para copias:
         if intranet_online(app_config.MI_shared_folder):
             logger.info("Conexao com rede interna (Intranet) testada e funcionando OK.")
@@ -411,6 +416,10 @@ class MoveFilesIntranet(AbstractJob):
         open(ctrl_file_job, 'a').close()
         logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
                      ctrl_file_job)
+
+        # ao final do processamento, cria arquivo informando que as pastas podem ser copiadas:
+        if os.path.exists(app_config.MI_shared_app_base):  # apenas para evitar excecoes eventuais.
+            open(temp_safe_del, 'a').close()
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
         logger.info("Finalizado job '%s' para copiar/mover arquivos para outra estacao.",

@@ -89,12 +89,14 @@ class AppConfig:
     MI_cia_mql5_files: str = ''
     MI_cia_mql5_logs: str = ''
 
+    MI_shared_app_base: str = ''
     MI_shared_mt5_crashes: str = ''
     MI_shared_app_www: str = ''
     MI_shared_app_logs: str = ''
     MI_shared_clock_logs: str = ''
 
     MI_ctrl_file_mask: str = ''
+    MI_temp_safe_del: str = ''
 
     MI_app_log_files_mask: str = ''
     MI_app_log_mask: str = ''
@@ -180,12 +182,14 @@ class AppConfig:
         self.MI_cia_mql5_files = parser.get("MOVE_INTRANET", "cia_mql5_files")
         self.MI_cia_mql5_logs = parser.get("MOVE_INTRANET", "cia_mql5_logs")
 
+        self.MI_shared_app_base = parser.get("MOVE_INTRANET", "shared_app_base")
         self.MI_shared_mt5_crashes = parser.get("MOVE_INTRANET", "shared_mt5_crashes")
         self.MI_shared_app_www = parser.get("MOVE_INTRANET", "shared_app_www")
         self.MI_shared_app_logs = parser.get("MOVE_INTRANET", "shared_app_logs")
         self.MI_shared_clock_logs = parser.get("MOVE_INTRANET", "shared_clock_logs")
 
         self.MI_ctrl_file_mask = parser.get("MOVE_INTRANET", "ctrl_file_mask")
+        self.MI_temp_safe_del = parser.get("MOVE_INTRANET", "temp_safe_del")
 
         self.MI_app_log_files_mask = parser.get("MOVE_INTRANET", "app_log_files_mask")
         self.MI_app_log_mask = parser.get("MOVE_INTRANET", "app_log_mask")
