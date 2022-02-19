@@ -394,7 +394,9 @@ class MoveFilesIntranet(AbstractJob):
         # --- Move arquivos baixados e gerados pelo InFinite para outra estacao ---------------
 
         move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
-                            app_config.RT_files_all_mask)
+                            app_config.RT_files_zip_mask)
+        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_caixa_base,
+                            app_config.RT_files_htm_mask)
         logger.debug("Finalizou mocao dos arquivos baixados pelo Infinite para outra estacao.")
 
         # --- Copia arquivos de logging gerados pelo InFinite e Digital-Clock -----------------

@@ -20,6 +20,7 @@ import schedule
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.parallel_task import run_threaded
+from infinite.jobs.download_loterias_caixa import DownloadLoteriasCaixa
 from infinite.jobs.download_ibovespa_b3 import DownloadIbovespaB3
 from infinite.jobs.download_intraday_b3 import DownloadIntradayB3
 from infinite.jobs.zip_files_mql5 import ZipFilesMql5
@@ -59,6 +60,9 @@ def cancel_job(job_id):
 # entry-point de execucao para tarefas diarias:
 def main():
     logger.info("Iniciando agendamento dos jobs diarios...")
+
+    # Download dos Resultados das Loterias da Caixa:
+    schedule_job(DownloadLoteriasCaixa())
 
     # Download das Cotacoes IntraDay da B3
     schedule_job(DownloadIntradayB3())

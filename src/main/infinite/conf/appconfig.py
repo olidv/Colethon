@@ -46,6 +46,7 @@ class AppConfig:
     RT_mt5_terminal_mql5_logs: str = ''
 
     RT_files_csv_mask: str = ''
+    RT_files_htm_mask: str = ''
     RT_files_log_mask: str = ''
     RT_files_zip_mask: str = ''
     RT_files_all_mask: str = ''
@@ -54,6 +55,15 @@ class AppConfig:
     SC_job_delay: int = 0
     SC_loop_on: bool = False
     SC_time_wait: int = 0
+
+    # Parametrizacao das loterias da Caixa EF:
+    LC_job_interval: int = 0
+    LC_uri_site: str = ''
+    LC_uri_port: int = 0
+    LC_caixa_loterias_url: list[tuple] = None
+    LC_timeout_download: int = 0
+    LC_loteria_htm_name: str = ''
+    LC_ctrl_file_mask: str = ''
 
     # Parametrizacao do mercado da bolsa B3:
     B3_uri_site: str = ''
@@ -94,6 +104,7 @@ class AppConfig:
     MI_shared_app_www: str = ''
     MI_shared_app_logs: str = ''
     MI_shared_clock_logs: str = ''
+    MI_shared_caixa_base: str = ''
 
     MI_ctrl_file_mask: str = ''
     MI_temp_safe_del: str = ''
@@ -137,6 +148,7 @@ class AppConfig:
         self.RT_mt5_terminal_mql5_logs = parser.get("ROOT", "mt5_terminal_mql5_logs")
 
         self.RT_files_csv_mask = parser.get("ROOT", "files_csv_mask")
+        self.RT_files_htm_mask = parser.get("ROOT", "files_htm_mask")
         self.RT_files_log_mask = parser.get("ROOT", "files_log_mask")
         self.RT_files_zip_mask = parser.get("ROOT", "files_zip_mask")
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
@@ -146,6 +158,20 @@ class AppConfig:
         self.SC_loop_on = parser.getboolean("SCHEDULER", "loop_on")
         self.SC_time_wait = parser.getint("SCHEDULER", "time_wait")
 
+        # Parametrizacao do job para download dos resultados das loterias da Caixa EF:
+        self.LC_job_interval = parser.getint("LOTERIA_CAIXA", "job_interval")
+        self.LC_timeout_download = parser.getint("LOTERIA_CAIXA", "timeout_download")
+        self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
+        self.LC_ctrl_file_mask = parser.get("LOTERIA_CAIXA", "ctrl_file_mask")
+
+        loterias = parser.get("LOTERIA_CAIXA", "caixa_loterias_url").split(',')
+        self.LC_caixa_loterias_url = [tuple(link.strip().split(';')) for link in loterias]
+
+        # Parametrizacao do acesso ao web site da Caixa EF:
+        self.LC_uri_site = parser.get("LOTERIA_CAIXA", "uri_site")
+        self.LC_uri_port = parser.getint("LOTERIA_CAIXA", "uri_port")
+
+        # Parametrizacao do acesso ao web site da B3:
         self.B3_uri_site = parser.get("B3", "uri_site")
         self.B3_uri_port = parser.getint("B3", "uri_port")
 
@@ -187,6 +213,7 @@ class AppConfig:
         self.MI_shared_app_www = parser.get("MOVE_INTRANET", "shared_app_www")
         self.MI_shared_app_logs = parser.get("MOVE_INTRANET", "shared_app_logs")
         self.MI_shared_clock_logs = parser.get("MOVE_INTRANET", "shared_clock_logs")
+        self.MI_shared_caixa_base = parser.get("MOVE_INTRANET", "shared_caixa_base")
 
         self.MI_ctrl_file_mask = parser.get("MOVE_INTRANET", "ctrl_file_mask")
         self.MI_temp_safe_del = parser.get("MOVE_INTRANET", "temp_safe_del")
