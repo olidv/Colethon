@@ -24,11 +24,12 @@ Criar novo job para download dos arquivos de resultados das loterias da caixa.
     dupla-sena:    http://loterias.caixa.gov.br/wps/portal/loterias/landing/duplasena
     lotofacil:     http://loterias.caixa.gov.br/wps/portal/loterias/landing/lotofacil
 
+Incluir zip do diretorio \dist\*.* no InFiniTe.
+    <app>.zip
+
 
 --- OK --------------------------------------------------------------
 
-
-Adotar "async def" nos métodos de jobs.
 
 Criar novo job para alertar para vencimentos de ativos como mini índices e opções.
     Indicar próximos ativos a serem negociados apos vencimento e dia/data da troca.
@@ -39,12 +40,11 @@ Criar novo job para baixar as cotações de commodities no mundo inteiro.
 Criar novo job para download de todas as comodities que afetem a bolsa no brasil.
     Milho, Soja, Café, Boi Gordo, Barril de Petróleo, Minério
 
-Mudar o codename de cada job para 3 letras ao gerar arquivo de controle (\temp).
-
-Incluir zip do diretorio \dist\*.* no InFiniTe.
-    <app>.zip
-
 Criar tela principal com o Qt Designer - parar de usar DOS shell.
+
+Adotar "async def" nos métodos de jobs.
+
+??? Mudar o codename de cada job para 3 letras ao gerar arquivo de controle (\temp) ???
 
 Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
     loggers:
