@@ -30,10 +30,13 @@ copy src\scripts\*.* dist\bin\
 copy src\resources\prod\*.* dist\conf\
 copy src\resources\README.md dist\
 
+rem se tudo ok ate aqui, compacta o build e gera pacote de distribuicao
+python -m zipfile -c infinite-1.0.zip dist\.
+move infinite-1.0.zip dist\.  1>nul  2>&1
+
 rem executa o programa para testar se tudo ok
 cd dist\bin
 python infinite.zip -t -c ..\conf
-
 
 rem instala as dependencias do projeto (ambiente virtual corrente)
 rem python -m pip install -r requirements.txt

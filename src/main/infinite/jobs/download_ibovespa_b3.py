@@ -184,8 +184,8 @@ class DownloadIbovespaB3(AbstractJob):
             return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # se tudo ok ate aqui, inicia navegador para download com selenium:
-        timeout_download = app_config.CI_timeout_download
-        browser = commons.open_webdriver_chrome(app_config.RT_www_path, timeout_download)
+        browser = commons.open_webdriver_chrome(app_config.RT_www_path,
+                                                app_config.CI_timeout_download)
         if browser is None:  # se nao ativou o WebDriver nao tem como prosseguir...
             # pode cancelar o job porque nao sera mais executado.
             logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.", self.job_id)
@@ -195,7 +195,7 @@ class DownloadIbovespaB3(AbstractJob):
 
         try:
             # acessa site da B3 com selenium e simula download com click.
-            download_ibov_csv(browser, timeout_download)
+            download_ibov_csv(browser, app_config.CI_timeout_download)
 
             logger.info("Download da Carteira Teorica do IBovespa efetuado com sucesso.")
 

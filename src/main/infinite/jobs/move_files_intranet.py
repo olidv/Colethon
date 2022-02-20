@@ -395,6 +395,8 @@ class MoveFilesIntranet(AbstractJob):
 
         move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
                             app_config.RT_files_zip_mask)
+        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
+                            app_config.RT_files_csv_mask)
         move_source_destiny(app_config.RT_www_path, app_config.MI_shared_caixa_base,
                             app_config.RT_files_htm_mask)
         logger.debug("Finalizou mocao dos arquivos baixados pelo Infinite para outra estacao.")

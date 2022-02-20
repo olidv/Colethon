@@ -142,7 +142,7 @@ class AppConfig:
         self.RT_mt5_terminal_commons = parser.get("ROOT", "mt5_terminal_commons")
 
         instances = parser.get("ROOT", "mt5_instances_id").split(',')
-        self.RT_mt5_instances_id = [tuple(i.strip().split(':')) for i in instances]
+        self.RT_mt5_instances_id = [tuple(i.strip().split(';')) for i in instances]
         self.RT_mt5_terminal_logs = parser.get("ROOT", "mt5_terminal_logs")
         self.RT_mt5_terminal_mql5_files = parser.get("ROOT", "mt5_terminal_mql5_files")
         self.RT_mt5_terminal_mql5_logs = parser.get("ROOT", "mt5_terminal_mql5_logs")

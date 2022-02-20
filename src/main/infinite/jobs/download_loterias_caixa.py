@@ -81,8 +81,9 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
         logger.debug("Iniciando download de resultados da Loteria '%s' apos click na pagina.", name)
         with open(loteria_htm_path, "w", encoding="utf-8") as file_htm:
             file_htm.write(browser.page_source)
-            # timeout para o download, para aguardar o browser salvar a pagina de resultados.
-            time.sleep(app_config.LC_timeout_download)
+
+        # timeout para o download, para aguardar o browser salvar a pagina de resultados.
+        time.sleep(app_config.LC_timeout_download)
 
         logger.debug("Finalizado download dos resultados da Loteria '%s' no arquivo '%s'.",
                      name, loteria_htm_name)
