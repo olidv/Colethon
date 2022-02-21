@@ -1,6 +1,6 @@
 @echo off
 
-rem Printa a apresentacao do build.
+rem Printa a apresentacao do build:
 echo.
 echo  BUILD DO INFINITE   [ D:\WORKSPACE\PYTHON\INFINITE\ETC\BUILD.BAT ]
 echo.
@@ -63,6 +63,6 @@ cd dist\bin
 python infinite.zip -t -c ..\conf
 echo.
 
-rem pausa final...
+rem Pausa final...
 echo.
 pause

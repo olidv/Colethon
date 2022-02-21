@@ -54,4 +54,5 @@ Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
         level: ERROR
       urllib3:
         level: ERROR
-
+    
+---------------------------------------------------------------------
