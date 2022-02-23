@@ -35,7 +35,7 @@ APP_CONFIG_INI = "app_config.ini"
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:

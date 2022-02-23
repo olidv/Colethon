@@ -28,7 +28,7 @@ from infinite.jobs.move_files_intranet import MoveFilesIntranet
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
 # configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
@@ -56,6 +56,10 @@ def cancel_job(job_id):
     schedule.clear(job_id)
     logger.info("Cancelado job diario: '%s'.", job_id)
 
+
+# ----------------------------------------------------------------------------
+# MAIN ENTRY-POINT
+# ----------------------------------------------------------------------------
 
 # entry-point de execucao para tarefas diarias:
 def main():

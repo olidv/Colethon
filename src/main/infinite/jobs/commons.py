@@ -23,7 +23,7 @@ from selenium.common.exceptions import WebDriverException
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:

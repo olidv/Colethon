@@ -16,7 +16,7 @@ import threading
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
 # execucao paralela de qualquer job, cada um em sua propria thread:

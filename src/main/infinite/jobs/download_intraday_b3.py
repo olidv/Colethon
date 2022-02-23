@@ -23,7 +23,7 @@ from infinite.util import feriado
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES UTILITARIAS
+# FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
 # gera o nome do arquivo de controle para indicar status do job:

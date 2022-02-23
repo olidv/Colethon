@@ -23,7 +23,7 @@ from infinite.conf import app_config
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES
+# FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
 # cancela o job fornecido:
@@ -39,6 +39,10 @@ def cancel_job(job_id):
     schedule.clear(job_id)
     logger.info("Cancelado mensal: '%s'.", job_id)
 
+
+# ----------------------------------------------------------------------------
+# MAIN ENTRY-POINT
+# ----------------------------------------------------------------------------
 
 # entry-point de execucao para tarefas mensais:
 def main():
