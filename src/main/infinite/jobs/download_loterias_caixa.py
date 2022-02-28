@@ -64,8 +64,9 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
         el_a.click()
         logger.debug("Efetuado click na pagina para download da Loteria '%s'.", name)
 
-        # timeout para o browser aguardar o browser carregar a pagina de resultados.
-        browser.implicitly_wait(app_config.LC_timeout_download)
+        # timeout para o browser aguardar o carregamento da pagina de resultados.
+        # browser.implicitly_wait(app_config.LC_timeout_download)
+        time.sleep(app_config.LC_timeout_download)
 
         if len(browser.window_handles) > 1:
             logger.debug("Ativando segunda aba do browser para download da Loteria.")
@@ -81,9 +82,6 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
         logger.debug("Iniciando download de resultados da Loteria '%s' apos click na pagina.", name)
         with open(loteria_htm_path, "w", encoding="utf-8") as file_htm:
             file_htm.write(browser.page_source)
-
-        # timeout para o download, para aguardar o browser salvar a pagina de resultados.
-        time.sleep(app_config.LC_timeout_download)
 
         logger.debug("Finalizado download dos resultados da Loteria '%s' no arquivo '%s'.",
                      name, loteria_htm_name)
