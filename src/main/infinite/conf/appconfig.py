@@ -40,7 +40,7 @@ class AppConfig:
     RT_mt5_platform_crashes: str = ''
     RT_mt5_terminal_commons: str = ''
 
-    RT_mt5_instances_id: list[tuple] = None
+    RT_mt5_instances_id: list[tuple[str, ...]] = None
     RT_mt5_terminal_logs: str = ''
     RT_mt5_terminal_mql5_files: str = ''
     RT_mt5_terminal_mql5_logs: str = ''
@@ -60,7 +60,7 @@ class AppConfig:
     LC_job_interval: int = 0
     LC_uri_site: str = ''
     LC_uri_port: int = 0
-    LC_caixa_loterias_url: list[tuple] = None
+    LC_caixa_loterias_url: list[tuple[str, ...]] = None
     LC_timeout_download: int = 0
     LC_loteria_htm_name: str = ''
     LC_ctrl_file_mask: str = ''
@@ -68,7 +68,7 @@ class AppConfig:
     # Parametrizacao do mercado da bolsa B3:
     B3_uri_site: str = ''
     B3_uri_port: int = 0
-    B3_feriados_bolsa: list[tuple] = None
+    B3_feriados_bolsa: list[tuple[int, ...]] = None
 
     # Parametrizacao do job para baixa da Carteira Teorica do IBovespa:
     CI_job_interval: int = 0
@@ -121,7 +121,7 @@ class AppConfig:
     MI_terminal_log_cutoff: int = 0
 
     # Parametrizacao do mercado de FOREX:
-    FX_feriados_forex: list[tuple] = None
+    FX_feriados_forex: list[tuple[int, ...]] = None
 
     # .
     def load_properties(self, parser: ConfigParser) -> None:
