@@ -1,8 +1,16 @@
 @echo off
 color F
 
+echo Criando pasta do projeto
+mkdir Infinite
+echo.
+
+echo Instalando ambiente virtual no projeto
+python -m venv Infinite\venv
+echo.
+
 echo Posicionando no diretorio raiz do projeto
-cd ..
+cd Infinite
 echo.
 
 echo Verificando a versao atual do Python no sistema
@@ -25,7 +33,7 @@ echo Verificando a versao atual do Python no ambiente
 python --version
 echo.
 
-echo Atualizando o pip no ambiente para evitar conflitos de versoes
+echo Atualizando o pip no ambiente para evitar conflitos
 python -m pip install --upgrade pip
 echo.
 
@@ -35,17 +43,11 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
-pip install -U numpy
-pip install -U pandas
-pip install -U patsy
-pip install -U matplotlib
-pip install -U bokeh
-pip install -U scipy
-pip install -U statsmodels
-pip install -U seaborn
-pip install -U scikit-learn
-pip install -U pingouin
-pip install -U jupyterlab
+pip install PyYAML
+pip install requests
+pip install selenium
+pip install schedule
+pip install Send2Trash
 @echo off
 echo.
 
