@@ -4,6 +4,10 @@ echo Posicionando no diretorio raiz da aplicacao
 cd ..
 echo.
 
+echo Verificando a versao atual do Python no sistema
+python --version
+echo.
+
 echo Atualizando o pip no sistema para evitar conflitos de versoes
 python -m pip install --upgrade pip
 echo.
@@ -12,11 +16,19 @@ echo Verificando a versao atual do pip no sistema
 pip --version
 echo.
 
-echo Ativa o ambiente virtual da aplicacao
+echo Instalando ambiente virtual na aplicacao
+python -m venv venv
+echo.
+
+echo Ativando o ambiente virtual da aplicacao
 call venv\Scripts\activate.bat
 echo.
 
-echo Atualizando o pip no ambiente para evitar conflitos de versoes
+echo Verificando a versao atual do Python no ambiente
+python --version
+echo.
+
+echo Atualizando o pip no ambiente para evitar conflitos
 python -m pip install --upgrade pip
 echo.
 

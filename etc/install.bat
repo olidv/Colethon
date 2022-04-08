@@ -5,10 +5,6 @@ echo Criando pasta do projeto
 mkdir Infinite
 echo.
 
-echo Instalando ambiente virtual no projeto
-python -m venv Infinite\venv
-echo.
-
 echo Posicionando no diretorio raiz do projeto
 cd Infinite
 echo.
@@ -23,6 +19,10 @@ echo.
 
 echo Verificando a versao atual do pip no sistema
 pip --version
+echo.
+
+echo Instalando ambiente virtual no projeto
+python -m venv Infinite\venv
 echo.
 
 echo Ativando o ambiente virtual do projeto
