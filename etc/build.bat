@@ -60,7 +60,7 @@ echo.
 
 echo Executando o programa para testar se tudo ok [ -t  testing ]
 cd dist\bin
-python infinite.zip -t -c ..\conf
+python infinite.zip -c ..\conf -t .
 echo.
 
 rem Pausa final...
