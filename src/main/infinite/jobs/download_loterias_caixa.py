@@ -50,7 +50,7 @@ def arquivo_controle(data: date) -> str:
 
 # efetua o download do arquivo de resultados da loteria a partir da URL configurada pra este job:
 def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
-                                xpath: str) -> None:
+                                xpath: str) -> bool:
     try:
         # acessa link desta Loteria da Caixa com selenium e simula download com click.
         browser.get(link)
@@ -85,6 +85,7 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
 
         logger.debug("Finalizado download dos resultados da Loteria '%s' no arquivo '%s'.",
                      name, loteria_htm_name)
+        return True
 
     # captura as excecoes InvalidArgumentException, NoSuchElementException,
     #                     InvalidSelectorException
@@ -92,6 +93,7 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
         # se o site esta fora do ar ou o HTML foi alterado, interrompe e tenta depois:
         logger.error("Erro no download da Loteria '%s' no site da Caixa:\n  %s",
                      name, repr(ex))
+        return False
 
     # ao final, fecha navegador e encerra o webdriver...
     finally:
@@ -193,8 +195,10 @@ class DownloadLoteriasCaixa(AbstractJob):
 
             # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
             logger.info("Iniciando download da loteria '%s' a partir do site '%s'...", name, link)
-            download_resultados_loteria(browser, name, link, xpath)
-            logger.info("Download dos resultados da Loteria '%s' efetuado com sucesso.", name)
+            if download_resultados_loteria(browser, name, link, xpath):
+                logger.info("Download dos resultados da Loteria '%s' efetuado com sucesso.", name)
+            else:
+                logger.error("Erro ao executar download dos resultados da Loteria '%s'.", name)
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()

@@ -27,7 +27,7 @@ from infinite import scheduler_mensal
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "dmtc:"
+CMD_LINE_ARGS = "dmt:c:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -63,7 +63,7 @@ def print_usage():
           '  -c <path>   Informa o path para os arquivos de configuracao\n'
           '  -d          Agenda as tarefas diarias\n'
           '  -m          Agenda as tarefas mensais\n'
-          '  -t          Executa teste de funcionamento\n')
+          '  -t <job>    Executa teste de funcionamento de algum job\n')
 
 
 # faz o parsing das opcoes e argumentos da linha de comando:
@@ -87,6 +87,7 @@ if (opts is None) or (len(opts) == 0):
 
 # comandos e opcoes de execucao:
 opt_cfpath = ''      # path para os arquivos de configuracao
+opt_tstjob = ''      # id do job a ser executado para testes
 opt_diario = False   # Flag para tarefas diarias
 opt_mensal = False   # Flag para tarefas mensais
 opt_testes = False   # Flag para teste de funcionamento
@@ -101,6 +102,7 @@ for opt, val in opts:
         opt_mensal = True
     elif opt == '-t':
         opt_testes = True
+        opt_tstjob = val
 
 # valida o path para os arquivos de configuracao:
 if len(opt_cfpath) == 0:
@@ -141,8 +143,16 @@ logger.debug("Argumentos da linha de comando: " + str(opts).strip('[]'))
 
 # Rotina de testes:
 if opt_testes:
+    if opt_tstjob == 'lc':
+        import test_loterias as suite
+        logger.info("Vai executar suite de testes do job 'DownloadLoteriasCaixa'...")
+        suite.test_job()
+        logger.info("Suite de testes do job 'DownloadLoteriasCaixa' foi executado.")
+    else:
+        # Informa que tudo ok ate aqui, Infinite funcionando normalmente:
+        logger.info("Modulo main() executado com sucesso! opt_testes = %s", opt_testes)
+
     # aborta o processamento se esta apenas testando:
-    logger.info("Modulo main() executado com sucesso! opt_testes = %s", opt_testes)
     sys.exit(EXIT_SUCCESS)
 
 
