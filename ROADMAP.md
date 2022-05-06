@@ -10,7 +10,6 @@ Printar no log um ALERTA para quando precisar atualizar o WebDriver:
     [311]2022-04-29 04:59:04,585 ERROR [Thread-3 (run_job)] infinite.jobs.commons->open_webdriver_chrome<113>  Erro ao tentar inicializar o WebDriver do Chrome:
     [313]2022-04-29 04:59:04,587 ERROR [Thread-3 (run_job)] infinite.jobs.download_ibovespa_b3->run_job<191>  O job 'CARTEIRA_IBOVESPA' nao pode prosseguir sem o WebDriver do Chrome.
 
-
 Modificar job das loterias para buscar o texto/anchor "Resultados da ..." 
 ao inves de localizar pelo XPATH.
     Resultados da Dia de Sorte por ordem crescente.
@@ -23,8 +22,6 @@ ao inves de localizar pelo XPATH.
     Resultados da Timemania por ordem crescente.
 
 Adotar "async def" nos métodos de jobs.
-
-??? Mudar o codename de cada job para 3 letras ao gerar arquivo de controle (\temp) ???
 
 Criar novo job para alertar para vencimentos de ativos como mini índices e opções.
     Indicar próximos ativos a serem negociados apos vencimento e dia/data da troca.
@@ -46,7 +43,6 @@ Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
       urllib3:
         level: ERROR
     
----------------------------------------------------------------------
 
 --- OK --------------------------------------------------------------
 
