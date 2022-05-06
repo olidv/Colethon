@@ -43,11 +43,13 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
-pip install PyYAML
-pip install requests
-pip install selenium
-pip install schedule
-pip install Send2Trash
+pip install -U wheel
+pip install -U PyYAML
+pip install -U requests
+pip install -U selenium
+pip install -U schedule
+pip install -U Send2Trash
+pip install -U memory_profiler
 @echo off
 echo.
 
