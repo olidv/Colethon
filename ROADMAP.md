@@ -1,6 +1,8 @@
 
 --- PENDENTE --------------------------------------------------------
 
+Ajustar os intervalos de execucao dos jobs para evitar conflitos entre baixar loterias e cotacoes.
+
 Printar no log um ALERTA para quando precisar atualizar o WebDriver:
     2022-04-29 04:59:04,585 ERROR [Thread-3 (run_job)] infinite.jobs.commons->open_webdriver_chrome<113>  Erro ao tentar inicializar o WebDriver do Chrome:
       WebDriverException('chrome not reachable', None, ['Backtrace:', '\tOrdinal0 [0x01527413+2389011]', '\tOrdinal0 [0x014B9F61+1941345]', '\tOrdinal0 [0x013AC520+836896]', '\tOrdinal0 [0x013A05AB+787883]', '\tOrdinal0 [0x013CC128+966952]', '\tOrdinal0 [0x013C837A+951162]', '\tOrdinal0 [0x013C5C51+941137]', '\tOrdinal0 [0x013F8C80+1150080]', '\tOrdinal0 [0x013F88DA+1149146]', '\tOrdinal0 [0x013F3F66+1130342]', '\tOrdinal0 [0x013CE546+976198]', '\tOrdinal0 [0x013CF456+980054]', '\tGetHandleVerifier [0x016D9632+1727522]', '\tGetHandleVerifier [0x0178BA4D+2457661]', '\tGetHandleVerifier [0x015BEB81+569713]', '\tGetHandleVerifier [0x015BDD76+566118]', '\tOrdinal0 [0x014C0B2B+1968939]', '\tOrdinal0 [0x014C5988+1989000]', '\tOrdinal0 [0x014C5A75+1989237]', '\tOrdinal0 [0x014CECB1+2026673]', '\tBaseThreadInitThunk [0x76BE6A14+36]', '\tRtlInitializeExceptionChain [0x7785AB4F+143]', '\tRtlInitializeExceptionChain [0x7785AB1A+90]', ''])

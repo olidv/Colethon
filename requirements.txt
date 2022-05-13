@@ -6,7 +6,9 @@ charset-normalizer==2.0.12
 cryptography==36.0.2
 h11==0.13.0
 idna==3.3
+memory-profiler==0.60.0
 outcome==1.1.0
+psutil==5.9.0
 pycparser==2.21
 pyOpenSSL==22.0.0
 PySocks==1.7.1

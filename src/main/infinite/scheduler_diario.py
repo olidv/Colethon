@@ -65,14 +65,14 @@ def cancel_job(job_id):
 def main():
     logger.info("Iniciando agendamento dos jobs diarios...")
 
-    # Download dos Resultados das Loterias da Caixa:
-    schedule_job(DownloadLoteriasCaixa())
+    # Download da Carteira Teorica do IBovespa
+    schedule_job(DownloadIbovespaB3())
 
     # Download das Cotacoes IntraDay da B3
     schedule_job(DownloadIntradayB3())
 
-    # Download da Carteira Teorica do IBovespa
-    schedule_job(DownloadIbovespaB3())
+    # Download dos Resultados das Loterias da Caixa:
+    schedule_job(DownloadLoteriasCaixa())
 
     # Compactar arquivos CSV nos terminais MT5
     schedule_job(ZipFilesMql5())
