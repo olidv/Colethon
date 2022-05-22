@@ -1,3 +1,13 @@
+"""
+   Package infinite.conf
+   Module  __init__.py
+
+"""
+
+__all__ = [
+    'app_config'
+]
+
 
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
