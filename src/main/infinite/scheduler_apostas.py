@@ -1,9 +1,9 @@
 """
    Package infinite
-   Module  scheduler_mensal.py
+   Module  scheduler_apostas.py
 
-   Modulo para agendar as tarefas mensais do Infinite, atraves do agendador
-   utilitario do Python (lib schedule).
+   Modulo para agendar as tarefas relativas a apostas esportivas,
+   atraves do agendador utilitario do Python (lib schedule).
 """
 
 # ----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ import schedule
 
 # Own/Project modules
 from infinite.conf import app_config
-# from infinite.util.parallel_task import run_threaded
+from infinite.util.parallel_task import run_threaded
 
 
 # ----------------------------------------------------------------------------
@@ -34,31 +34,33 @@ logger = logging.getLogger(__name__)
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
+# configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
+def schedule_job(job_obj):
+    # o job sera executado em nova thread:
+    schedule.every(job_obj.job_interval).minutes.do(run_threaded, job_obj.run_job, cancel_job) \
+                                                .tag(job_obj.job_id)
+    logger.info("Agendado job '%s' a cada %d minutos.", job_obj.job_id, job_obj.job_interval)
+
+
 # cancela o job fornecido:
 def cancel_job(job_id):
     schedule.clear(job_id)
-    logger.info("Cancelado mensal: '%s'.", job_id)
+    logger.info("Cancelado job agendado: '%s'.", job_id)
 
 
 # ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
 
-# entry-point de execucao para tarefas mensais:
+# entry-point de execucao para tarefas agendadas:
 def main():
-    logger.info("Iniciando agendamento dos jobs mensais...")
-
-    # mantem valores em variaveis locais para melhor performance:
-    job_delay = app_config.SC_job_delay
-    time_wait = app_config.SC_time_wait
-    loop_on = app_config.SC_loop_on
-
-    # --- Job Mensal ---------------------------------------------------------
-
-    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...", job_delay)
-    time.sleep(job_delay)
+    logger.info("Iniciando agendamento dos jobs relativos a Apostas Esportivas...")
 
     # --- Monitoramento do Scheduler -----------------------------------------
+
+    # mantem valores em variaveis locais para melhor performance:
+    time_wait = app_config.SC_time_wait
+    loop_on = app_config.SC_loop_on
 
     # mantem o script em execucao permanente enquanto os jobs estiverem agendados...
     idles = schedule.idle_seconds()  # sera usado para verificar se ha jobs pendentes.
@@ -81,7 +83,7 @@ def main():
         idles = schedule.idle_seconds()
 
     # finalizados todos os jobs, informa que o processamento foi ok:
-    logger.info("Finalizados todos os jobs mensais.")
+    logger.info("Finalizados todos os jobs relativos a Apostas Esportivas.")
     return 0
 
 # ----------------------------------------------------------------------------

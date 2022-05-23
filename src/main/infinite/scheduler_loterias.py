@@ -1,9 +1,9 @@
 """
    Package infinite
-   Module  scheduler_diario.py
+   Module  scheduler_loterias.py
 
-   Modulo para agendar as tarefas diarias do Infinite, atraves do agendador
-   utilitario do Python (lib schedule).
+   Modulo para agendar as tarefas relativas a loterias da caixa,
+   atraves do agendador utilitario do Python (lib schedule).
 """
 
 # ----------------------------------------------------------------------------
@@ -20,11 +20,6 @@ import schedule
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.parallel_task import run_threaded
-from infinite.jobs.download_loterias_caixa import DownloadLoteriasCaixa
-from infinite.jobs.download_ibovespa_b3 import DownloadIbovespaB3
-from infinite.jobs.download_intraday_b3 import DownloadIntradayB3
-from infinite.jobs.zip_files_mql5 import ZipFilesMql5
-from infinite.jobs.move_files_intranet import MoveFilesIntranet
 
 
 # ----------------------------------------------------------------------------
@@ -46,39 +41,20 @@ def schedule_job(job_obj):
                                                 .tag(job_obj.job_id)
     logger.info("Agendado job '%s' a cada %d minutos.", job_obj.job_id, job_obj.job_interval)
 
-    logger.debug("Incluindo intervalo de %d segundos entre as execucoes...",
-                 app_config.SC_job_delay)
-    time.sleep(app_config.SC_job_delay)
-
 
 # cancela o job fornecido:
 def cancel_job(job_id):
     schedule.clear(job_id)
-    logger.info("Cancelado job diario: '%s'.", job_id)
+    logger.info("Cancelado job agendado: '%s'.", job_id)
 
 
 # ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
 
-# entry-point de execucao para tarefas diarias:
+# entry-point de execucao para tarefas agendadas:
 def main():
-    logger.info("Iniciando agendamento dos jobs diarios...")
-
-    # Download da Carteira Teorica do IBovespa
-    schedule_job(DownloadIbovespaB3())
-
-    # Download das Cotacoes IntraDay da B3
-    schedule_job(DownloadIntradayB3())
-
-    # Download dos Resultados das Loterias da Caixa:
-    schedule_job(DownloadLoteriasCaixa())
-
-    # Compactar arquivos CSV nos terminais MT5
-    schedule_job(ZipFilesMql5())
-
-    # Copiar/mover arquivos para outra estacao
-    schedule_job(MoveFilesIntranet())
+    logger.info("Iniciando agendamento dos jobs relativos a Loterias da Caixa...")
 
     # --- Monitoramento do Scheduler -----------------------------------------
 
@@ -107,7 +83,7 @@ def main():
         idles = schedule.idle_seconds()
 
     # finalizados todos os jobs, informa que o processamento foi ok:
-    logger.info("Finalizados todos os jobs diarios.")
+    logger.info("Finalizados todos os jobs relativos a Loterias da Caixa.")
     return 0
 
 # ----------------------------------------------------------------------------

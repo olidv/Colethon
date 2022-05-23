@@ -18,8 +18,9 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from infinite.conf import settings
-from infinite import scheduler_diario
-from infinite import scheduler_mensal
+from infinite import scheduler_bolsas
+from infinite import scheduler_loterias
+from infinite import scheduler_apostas
 
 
 # ----------------------------------------------------------------------------
@@ -27,7 +28,7 @@ from infinite import scheduler_mensal
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "dmt:c:"
+CMD_LINE_ARGS = "blac:t:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -60,9 +61,10 @@ def print_usage():
           '  python infinite.zip [opcoes]\n'
           '\n'
           'Opcoes Gerais:\n'
+          '  -b          Agenda as tarefas para Bolsas de Valores\n'
+          '  -l          Agenda as tarefas para Loterias da Caixa\n'
+          '  -a          Agenda as tarefas para Apostas Esportivas\n'
           '  -c <path>   Informa o path para os arquivos de configuracao\n'
-          '  -d          Agenda as tarefas diarias\n'
-          '  -m          Agenda as tarefas mensais\n'
           '  -t <job>    Executa teste de funcionamento de algum job\n')
 
 
@@ -86,22 +88,25 @@ if (opts is None) or (len(opts) == 0):
     sys.exit(EXIT_ERROR_NO_ARGS)  # nao ha porque prosseguir...
 
 # comandos e opcoes de execucao:
+opt_bolsav = False   # Flag para tarefas relativas a bolsas de valores
+opt_lotocx = False   # Flag para tarefas relativas a loterias da caixa
+opt_aposte = False   # Flag para tarefas relativas a apostas esportivas
 opt_cfpath = ''      # path para os arquivos de configuracao
+opt_testef = False   # Flag para teste de funcionamento
 opt_tstjob = ''      # id do job a ser executado para testes
-opt_diario = False   # Flag para tarefas diarias
-opt_mensal = False   # Flag para tarefas mensais
-opt_testes = False   # Flag para teste de funcionamento
 
 # identifica o comando/tarefa/job do Infinite a ser executado:
 for opt, val in opts:
-    if opt == '-c':
+    if opt == '-b':
+        opt_bolsav = True
+    elif opt == '-l':
+        opt_lotocx = True
+    elif opt == '-a':
+        opt_aposte = True
+    elif opt == '-c':
         opt_cfpath = val
-    if opt == '-d':
-        opt_diario = True
-    elif opt == '-m':
-        opt_mensal = True
     elif opt == '-t':
-        opt_testes = True
+        opt_testef = True
         opt_tstjob = val
 
 # valida o path para os arquivos de configuracao:
@@ -142,7 +147,7 @@ logger.debug("Argumentos da linha de comando: " + str(opts).strip('[]'))
 # ----------------------------------------------------------------------------
 
 # Rotina de testes:
-if opt_testes:
+if opt_testef:
     if opt_tstjob == 'lc':
         import test_loterias as suite
         logger.info("Vai executar suite de testes do job 'DownloadLoteriasCaixa'...")
@@ -150,7 +155,7 @@ if opt_testes:
         logger.info("Suite de testes do job 'DownloadLoteriasCaixa' foi executado.")
     else:
         # Informa que tudo ok ate aqui, Infinite funcionando normalmente:
-        logger.info("Modulo main() executado com sucesso! opt_testes = %s", opt_testes)
+        logger.info("Modulo main() executado com sucesso! opt_testef = %s", opt_testef)
 
     # aborta o processamento se esta apenas testando:
     sys.exit(EXIT_SUCCESS)
@@ -161,15 +166,20 @@ if opt_testes:
 # ----------------------------------------------------------------------------
 
 # configura as tarefas no scheduler de acordo com as opcoes de execucao:
-if opt_diario:
-    logger.debug("Vai iniciar o scheduler diario...")
-    # Executa schedulers para agendar as tarefas (jobs)
-    sys.exit(scheduler_diario.main())
+if opt_bolsav:  # bolsas de valores
+    logger.debug("Vai iniciar o scheduler para tarefas relativas a Bolsas de Valores...")
+    # Executa o scheduler para agendar as respectivas tarefas (jobs)
+    sys.exit(scheduler_bolsas.main())
 
-elif opt_mensal:
-    logger.debug("Vai iniciar o scheduler mensal...")
-    # Executa schedulers para agendar as tarefas (jobs)
-    sys.exit(scheduler_mensal.main())
+elif opt_lotocx:  # loterias da caixa
+    logger.debug("Vai iniciar o scheduler para tarefas relativas a Loterias da Caixa...")
+    # Executa o scheduler para agendar as respectivas tarefas (jobs)
+    sys.exit(scheduler_loterias.main())
+
+elif opt_aposte:  # apostas esportivas
+    logger.debug("Vai iniciar o scheduler para tarefas relativas a Apostas Esportivas...")
+    # Executa o scheduler para agendar as respectivas tarefas (jobs)
+    sys.exit(scheduler_apostas.main())
 
 # se a opcao de execucao fornecida na linha de comando nao foi reconhecida:
 else:

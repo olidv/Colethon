@@ -11,7 +11,7 @@
 # Built-in/Generic modules
 import os
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 # Libs/Frameworks modules
 
@@ -109,6 +109,7 @@ class DownloadIntradayB3(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
+        _startTime: datetime = datetime.now()
         logger.info("Iniciando job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
 
         # o processamento eh feito conforme a data atual:
@@ -159,7 +160,9 @@ class DownloadIntradayB3(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        logger.info("Finalizado job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
+        _totalTime = datetime.now() - _startTime
+        logger.info(f"Finalizado job '{self.job_id}' para download das Cotacoes IntraDay da B3. "
+                    f"Tempo gasto: {_totalTime}")
         if callback_func is not None:
             callback_func(self.job_id)
 

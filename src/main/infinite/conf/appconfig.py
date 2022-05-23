@@ -52,29 +52,33 @@ class AppConfig:
     RT_files_all_mask: str = ''
 
     # Parametrizacao do scheduler utilizado para o agendamento de jobs:
-    SC_job_delay: int = 0
     SC_loop_on: bool = False
     SC_time_wait: int = 0
 
+    # Parametrizacao do site de loterias da Caixa EF:
+    CX_uri_site: str = ''
+    CX_uri_port: int = 0
+    CX_timeout_loadpage: int = 0
+    CX_timeout_download: int = 0
+
     # Parametrizacao das loterias da Caixa EF:
     LC_job_interval: int = 0
-    LC_uri_site: str = ''
-    LC_uri_port: int = 0
     LC_caixa_loterias_url: list[tuple[str, ...]] = None
-    LC_timeout_download: int = 0
+    LC_text_resultado: str = ''
     LC_loteria_htm_name: str = ''
     LC_ctrl_file_mask: str = ''
 
     # Parametrizacao do mercado da bolsa B3:
     B3_uri_site: str = ''
     B3_uri_port: int = 0
+    B3_timeout_loadpage: int = 0
+    B3_timeout_download: int = 0
     B3_feriados_bolsa: list[tuple[int, ...]] = None
 
     # Parametrizacao do job para baixa da Carteira Teorica do IBovespa:
     CI_job_interval: int = 0
     CI_url_carteira_ibov: str = ''
     CI_xpath_a_click: str = ''
-    CI_timeout_download: int = 0
     CI_ibov_csv_mask: str = ''
     CI_derivativos: list[str] = None
     CI_ibov_txt_name: str = ''
@@ -154,26 +158,29 @@ class AppConfig:
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
 
         # Parametrizacao do scheduler utilizado para o agendamento de jobs:
-        self.SC_job_delay = parser.getint("SCHEDULER", "job_delay")
         self.SC_loop_on = parser.getboolean("SCHEDULER", "loop_on")
         self.SC_time_wait = parser.getint("SCHEDULER", "time_wait")
 
+        # Parametrizacao do site de loterias da Caixa EF:
+        self.CX_uri_site = parser.get("CAIXA", "uri_site")
+        self.CX_uri_port = parser.getint("CAIXA", "uri_port")
+        self.CX_timeout_loadpage = parser.getint("CAIXA", "timeout_loadpage")
+        self.CX_timeout_download = parser.getint("CAIXA", "timeout_download")
+
         # Parametrizacao do job para download dos resultados das loterias da Caixa EF:
         self.LC_job_interval = parser.getint("LOTERIA_CAIXA", "job_interval")
-        self.LC_timeout_download = parser.getint("LOTERIA_CAIXA", "timeout_download")
+        self.LC_text_resultado = parser.get("LOTERIA_CAIXA", "text_resultado")
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
         self.LC_ctrl_file_mask = parser.get("LOTERIA_CAIXA", "ctrl_file_mask")
 
         loterias = parser.get("LOTERIA_CAIXA", "caixa_loterias_url").split(',')
         self.LC_caixa_loterias_url = [tuple(link.strip().split(';')) for link in loterias]
 
-        # Parametrizacao do acesso ao web site da Caixa EF:
-        self.LC_uri_site = parser.get("LOTERIA_CAIXA", "uri_site")
-        self.LC_uri_port = parser.getint("LOTERIA_CAIXA", "uri_port")
-
         # Parametrizacao do acesso ao web site da B3:
         self.B3_uri_site = parser.get("B3", "uri_site")
         self.B3_uri_port = parser.getint("B3", "uri_port")
+        self.B3_timeout_loadpage = parser.getint("B3", "timeout_loadpage")
+        self.B3_timeout_download = parser.getint("B3", "timeout_download")
 
         datas = parser.get("B3", "feriados_bolsa").split(',')
         self.B3_feriados_bolsa = [tuple(map(int, dia.split('/'))) for dia in datas]
@@ -182,7 +189,6 @@ class AppConfig:
         self.CI_job_interval = parser.getint("CARTEIRA_IBOVESPA", "job_interval")
         self.CI_url_carteira_ibov = parser.get("CARTEIRA_IBOVESPA", "url_carteira_ibov")
         self.CI_xpath_a_click = parser.get("CARTEIRA_IBOVESPA", "xpath_a_click")
-        self.CI_timeout_download = parser.getint("CARTEIRA_IBOVESPA", "timeout_download")
         self.CI_ibov_csv_mask = parser.get("CARTEIRA_IBOVESPA", "ibov_csv_mask")
         self.CI_derivativos = parser.get("CARTEIRA_IBOVESPA", "derivativos").split(',')
         self.CI_ibov_txt_name = parser.get("CARTEIRA_IBOVESPA", "ibov_txt_name")
@@ -190,8 +196,7 @@ class AppConfig:
 
         # Parametrizacao do job para baixa das Cotacoes IntraDay da B3:
         self.IB_job_interval = parser.getint("INTRADAY_B3", "job_interval")
-        self.IB_url_cotacoes_intraday = parser.get("INTRADAY_B3",
-                                                   "url_cotacoes_intraday")
+        self.IB_url_cotacoes_intraday = parser.get("INTRADAY_B3", "url_cotacoes_intraday")
         self.IB_intraday_url_mask = parser.get("INTRADAY_B3", "intraday_url_mask")
         self.IB_intraday_zip_mask = parser.get("INTRADAY_B3", "intraday_zip_mask")
         self.IB_ctrl_file_mask = parser.get("INTRADAY_B3", "ctrl_file_mask")

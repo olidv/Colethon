@@ -12,7 +12,7 @@
 import os
 import logging
 import time
-from datetime import date
+from datetime import date, datetime
 
 # Libs/Frameworks modules
 from selenium import webdriver
@@ -49,29 +49,30 @@ def arquivo_controle(data: date) -> str:
 
 
 # efetua o download do arquivo de resultados da loteria a partir da URL configurada pra este job:
-def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
-                                xpath: str) -> bool:
+def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str) -> bool:
     try:
         # acessa link desta Loteria da Caixa com selenium e simula download com click.
         browser.get(link)
-        logger.debug("A pagina da Loteria '%s' foi carregada com sucesso.", name)
+        logger.debug(f"A pagina da Loteria '{name}' foi carregada com sucesso.")
+
+        # timeout para o browser aguardar o carregamento da pagina inteira.
+        time.sleep(app_config.CX_timeout_loadpage)
 
         # localiza o elemento HTML do tipo <a href> para simular click:
-        el_a = browser.find_element(By.XPATH, xpath)
-        logger.debug("Elemento HTML encontrado: %s", el_a)
+        el_a = browser.find_element(by=By.PARTIAL_LINK_TEXT, value=app_config.LC_text_resultado)
+        logger.debug(f"Elemento HTML encontrado: {el_a}")
 
         # clica no <a> para abertura da pagina de resultados, para salvar em disco.
         el_a.click()
         logger.debug("Efetuado click na pagina para download da Loteria '%s'.", name)
 
-        # timeout para o browser aguardar o carregamento da pagina de resultados.
-        # browser.implicitly_wait(app_config.LC_timeout_download)
-        time.sleep(app_config.LC_timeout_download)
-
         if len(browser.window_handles) > 1:
             logger.debug("Ativando segunda aba do browser para download da Loteria.")
             window_after = browser.window_handles[1]
             browser.switch_to.window(window_name=window_after)
+
+        # timeout para o browser aguardar o carregamento da pagina para download.
+        time.sleep(app_config.CX_timeout_download)
 
         # gera o nome do arquivo HTM a ser salvo apos download dos resultados:
         loteria_htm_name = app_config.LC_loteria_htm_name
@@ -140,6 +141,7 @@ class DownloadLoteriasCaixa(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
+        _startTime: datetime = datetime.now()
         logger.info("Iniciando job '%s' para download dos resultados das loterias da Caixa EF.",
                     self.job_id)
 
@@ -171,8 +173,8 @@ class DownloadLoteriasCaixa(AbstractJob):
             return  # ao cancelar o job, nao sera mais executado novamente.
 
         # verifica se o computador esta conectado a internet e se o site da Caixa esta ok.
-        uri_site = app_config.LC_uri_site
-        uri_port = app_config.LC_uri_port
+        uri_site = app_config.CX_uri_site
+        uri_port = app_config.CX_uri_port
         if commons.web_online(uri_site, uri_port):
             logger.info("Conexao com Internet testada e funcionando OK.")
         else:
@@ -181,10 +183,10 @@ class DownloadLoteriasCaixa(AbstractJob):
             return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # percorre lista de loterias para processar cada download.
-        for name, link, xpath in caixa_loterias_url:
+        for name, link in caixa_loterias_url:
             # inicia navegador para download com selenium:
             browser = commons.open_webdriver_chrome(app_config.RT_www_path,
-                                                    app_config.LC_timeout_download)
+                                                    app_config.CX_timeout_download)
             if browser is None:  # se nao ativou o WebDriver nao tem como prosseguir...
                 # pode cancelar o job porque nao sera mais executado.
                 logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.",
@@ -195,10 +197,12 @@ class DownloadLoteriasCaixa(AbstractJob):
 
             # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
             logger.info("Iniciando download da loteria '%s' a partir do site '%s'...", name, link)
-            if download_resultados_loteria(browser, name, link, xpath):
+            if download_resultados_loteria(browser, name, link):
                 logger.info("Download dos resultados da Loteria '%s' efetuado com sucesso.", name)
             else:
+                # se alguma das loterias apresentar erro, entao retorna mais tarde e tenta de novo:
                 logger.error("Erro ao executar download dos resultados da Loteria '%s'.", name)
+                return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()
@@ -206,8 +210,9 @@ class DownloadLoteriasCaixa(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        logger.info("Finalizado job '%s' para download dos resultados das loterias da Caixa EF.",
-                    self.job_id)
+        _totalTime = datetime.now() - _startTime
+        logger.info(f"Finalizado job '{self.job_id}' para download dos resultados das loterias "
+                    f"da Caixa EF. Tempo gasto: {_totalTime}")
         if callback_func is not None:
             callback_func(self.job_id)
 

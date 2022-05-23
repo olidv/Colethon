@@ -111,6 +111,8 @@ def open_webdriver_chrome(download_directory: str,
     except WebDriverException as ex:
         # o WebDriver do Chrome pode nao estar instalado ou presente no PATH:
         logger.error("Erro ao tentar inicializar o WebDriver do Chrome:\n  %s", repr(ex))
+        if ex.msg == 'chrome not reachable':
+            logger.critical("*** ATENCAO: NECESSARIO ATUALIZAR VERSAO DO WEBDRIVER DO CHROME. ***")
 
     return browser
 

@@ -17,7 +17,7 @@ import glob
 import shutil
 import logging
 import time
-from datetime import date
+from datetime import date, datetime
 
 # Libs/Frameworks modules
 from selenium import webdriver
@@ -53,12 +53,16 @@ def arquivo_controle(data: date) -> str:
 
 
 # efetua o download do arquivo CSV simulando click() na pagina HTML:
-def download_ibov_csv(browser: webdriver.Chrome, timeout_download: int) -> None:
+def download_ibov_csv(browser: webdriver.Chrome) -> None:
     logger.debug("Vai simular click na pagina para download da Carteira do IBovespa...")
 
     # acessa site da B3 com selenium e simula download com click.
     url_carteira_ibov = app_config.CI_url_carteira_ibov
     browser.get(url_carteira_ibov)
+    logger.debug(f"A pagina da Carteira do IBovespa (B3) foi carregada com sucesso.")
+
+    # timeout para o browser aguardar o carregamento da pagina inteira.
+    time.sleep(app_config.B3_timeout_loadpage)
 
     # localiza o elemento HTML do tipo <a href> para simular click:
     xpath_a_click = app_config.CI_xpath_a_click
@@ -69,8 +73,8 @@ def download_ibov_csv(browser: webdriver.Chrome, timeout_download: int) -> None:
     logger.debug("Iniciando download da Carteira do IBovespa apos click na pagina...")
     el_a.click()
 
-    # tambem define timeout para o download para aguardar sua conclusao.
-    time.sleep(timeout_download)
+    # timeout para o browser aguardar o carregamento da pagina para download.
+    time.sleep(app_config.B3_timeout_download)
     logger.debug("Finalizado download da Carteira do IBovespa.")
 
 
@@ -151,6 +155,7 @@ class DownloadIbovespaB3(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
+        _startTime: datetime = datetime.now()
         logger.info("Iniciando job '%s' para download da Carteira Teorica do IBovespa.",
                     self.job_id)
 
@@ -185,7 +190,7 @@ class DownloadIbovespaB3(AbstractJob):
 
         # se tudo ok ate aqui, inicia navegador para download com selenium:
         browser = commons.open_webdriver_chrome(app_config.RT_www_path,
-                                                app_config.CI_timeout_download)
+                                                app_config.B3_timeout_download)
         if browser is None:  # se nao ativou o WebDriver nao tem como prosseguir...
             # pode cancelar o job porque nao sera mais executado.
             logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.", self.job_id)
@@ -195,7 +200,7 @@ class DownloadIbovespaB3(AbstractJob):
 
         try:
             # acessa site da B3 com selenium e simula download com click.
-            download_ibov_csv(browser, app_config.CI_timeout_download)
+            download_ibov_csv(browser)
 
             logger.info("Download da Carteira Teorica do IBovespa efetuado com sucesso.")
 
@@ -262,7 +267,9 @@ class DownloadIbovespaB3(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        logger.info("Finalizado job '%s' para download da carteira do IBOVESPA.", self.job_id)
+        _totalTime = datetime.now() - _startTime
+        logger.info(f"Finalizado job '{self.job_id}' para download da carteira do IBOVESPA. "
+                    f"Tempo gasto: {_totalTime}")
         if callback_func is not None:
             callback_func(self.job_id)
 

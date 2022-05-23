@@ -14,7 +14,7 @@ import glob
 import shutil
 import time
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 # Libs/Frameworks modules
 import send2trash
@@ -310,6 +310,7 @@ class MoveFilesIntranet(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
+        _startTime: datetime = datetime.now()
         logger.info("Iniciando job '%s' para copiar/mover arquivos para outra estacao.",
                     self.job_id)
 
@@ -426,8 +427,9 @@ class MoveFilesIntranet(AbstractJob):
             open(temp_safe_del, 'a').close()
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        logger.info("Finalizado job '%s' para copiar/mover arquivos para outra estacao.",
-                    self.job_id)
+        _totalTime = datetime.now() - _startTime
+        logger.info(f"Finalizado job '{self.job_id}' para copiar/mover arquivos para outra "
+                    f"estacao. Tempo gasto: {_totalTime}")
         if callback_func is not None:
             callback_func(self.job_id)
 

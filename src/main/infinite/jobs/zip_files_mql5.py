@@ -141,6 +141,7 @@ class ZipFilesMql5(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
+        _startTime: datetime = datetime.now()
         logger.info("Iniciando job '%s' para compactar arquivos CSV nos terminais MT5.",
                     self.job_id)
 
@@ -236,8 +237,9 @@ class ZipFilesMql5(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        logger.info("Finalizado job '%s' para compactar arquivos CSV nos terminais MT5.",
-                    self.job_id)
+        _totalTime = datetime.now() - _startTime
+        logger.info(f"Finalizado job '{self.job_id}' para compactar arquivos CSV nos "
+                    f"terminais MT5. Tempo gasto: {_totalTime}")
         if callback_func is not None:
             callback_func(self.job_id)
 
