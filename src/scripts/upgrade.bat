@@ -1,4 +1,5 @@
 @echo off
+color F
 
 echo Posicionando no diretorio raiz da aplicacao
 cd ..
