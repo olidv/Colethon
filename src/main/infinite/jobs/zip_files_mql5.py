@@ -19,8 +19,9 @@ from datetime import date, datetime
 import send2trash
 
 # Own/Project modules
-from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
+from infinite.util.eve import *
+from infinite.jobs.abstract_job import AbstractJob
 
 
 # ----------------------------------------------------------------------------
@@ -141,7 +142,7 @@ class ZipFilesMql5(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
-        _startTime: datetime = datetime.now()
+        _startWatch = startwatch()
         logger.info("Iniciando job '%s' para compactar arquivos CSV nos terminais MT5.",
                     self.job_id)
 
@@ -237,9 +238,9 @@ class ZipFilesMql5(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        _totalTime = datetime.now() - _startTime
+        _stopWatch = stopwatch(_startWatch)
         logger.info(f"Finalizado job '{self.job_id}' para compactar arquivos CSV nos "
-                    f"terminais MT5. Tempo gasto: {_totalTime}")
+                    f"terminais MT5. Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
 

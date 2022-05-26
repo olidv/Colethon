@@ -17,7 +17,7 @@ import glob
 import shutil
 import logging
 import time
-from datetime import date, datetime
+from datetime import date
 
 # Libs/Frameworks modules
 from selenium import webdriver
@@ -25,8 +25,9 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 
 # Own/Project modules
-from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
+from infinite.util.eve import *
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.jobs import commons
 
 # ----------------------------------------------------------------------------
@@ -155,7 +156,7 @@ class DownloadIbovespaB3(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
-        _startTime: datetime = datetime.now()
+        _startWatch = startwatch()
         logger.info("Iniciando job '%s' para download da Carteira Teorica do IBovespa.",
                     self.job_id)
 
@@ -267,9 +268,9 @@ class DownloadIbovespaB3(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        _totalTime = datetime.now() - _startTime
+        _stopWatch = stopwatch(_startWatch)
         logger.info(f"Finalizado job '{self.job_id}' para download da carteira do IBOVESPA. "
-                    f"Tempo gasto: {_totalTime}")
+                    f"Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
 

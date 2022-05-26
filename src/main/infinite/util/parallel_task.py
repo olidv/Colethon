@@ -1,6 +1,7 @@
 """
    Package infinite.util
    Module  parallel_task.py
+   
    Funcoes utilitarias para manipulacao de threads.
 """
 

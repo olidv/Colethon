@@ -11,13 +11,14 @@
 # Built-in/Generic modules
 import os
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 # Libs/Frameworks modules
 
 # Own/Project modules
-from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
+from infinite.util.eve import *
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.jobs import commons
 from infinite.util import feriado
 
@@ -109,7 +110,7 @@ class DownloadIntradayB3(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
-        _startTime: datetime = datetime.now()
+        _startWatch = startwatch()
         logger.info("Iniciando job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
 
         # o processamento eh feito conforme a data atual:
@@ -160,9 +161,9 @@ class DownloadIntradayB3(AbstractJob):
                      ctrl_file_job)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        _totalTime = datetime.now() - _startTime
+        _stopWatch = stopwatch(_startWatch)
         logger.info(f"Finalizado job '{self.job_id}' para download das Cotacoes IntraDay da B3. "
-                    f"Tempo gasto: {_totalTime}")
+                    f"Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
 

@@ -14,14 +14,15 @@ import glob
 import shutil
 import time
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 # Libs/Frameworks modules
 import send2trash
 
 # Own/Project modules
-from infinite.jobs.abstract_job import AbstractJob
 from infinite.conf import app_config
+from infinite.util.eve import *
+from infinite.jobs.abstract_job import AbstractJob
 from infinite.jobs import commons
 
 
@@ -310,7 +311,7 @@ class MoveFilesIntranet(AbstractJob):
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
         """
-        _startTime: datetime = datetime.now()
+        _startWatch = startwatch()
         logger.info("Iniciando job '%s' para copiar/mover arquivos para outra estacao.",
                     self.job_id)
 
@@ -427,9 +428,9 @@ class MoveFilesIntranet(AbstractJob):
             open(temp_safe_del, 'a').close()
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
-        _totalTime = datetime.now() - _startTime
+        _stopWatch = stopwatch(_startWatch)
         logger.info(f"Finalizado job '{self.job_id}' para copiar/mover arquivos para outra "
-                    f"estacao. Tempo gasto: {_totalTime}")
+                    f"estacao. Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
 
