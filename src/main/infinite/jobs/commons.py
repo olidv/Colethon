@@ -88,6 +88,10 @@ def open_webdriver_chrome(download_directory: str,
     options = Options()
     options.add_argument('--headless')  # nao exibe a janela do browser
     options.add_argument('window-size=500,500')  # para o caso da janela aparecer...
+    # FIXED: argument to switch off suid sandBox and no sandBox in Chrome...
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-setuid-sandbox')
+    options.add_argument('--disable-dev-shm-usage')  # overcome limited resource problems
 
     options.add_experimental_option("prefs", {  # evita dialogo para salvar arquivo...
         "download.default_directory": download_directory,
