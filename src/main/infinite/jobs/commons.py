@@ -16,7 +16,6 @@ from datetime import date, datetime
 # Libs/Frameworks modules
 import requests
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
 
 # Own/Project modules
@@ -85,7 +84,7 @@ def download_file(url_download: str, file_name: str) -> bool:
 def open_webdriver_chrome(download_directory: str,
                           timeout_download: int) -> webdriver.Chrome:
     # utiliza as preferencias especificas do Chrome para nao abrir dialogo de download:
-    options = Options()
+    options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # nao exibe a janela do browser
     options.add_argument('window-size=500,500')  # para o caso da janela aparecer...
     # FIXED: argument to switch off suid sandBox and no sandBox in Chrome...
