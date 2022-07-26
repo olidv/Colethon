@@ -29,7 +29,7 @@ echo Verificando a versao atual do Python no ambiente
 python --version
 echo.
 
-echo Atualizando o pip no ambiente para evitar conflitos
+echo Atualizando o pip no ambiente para evitar conflitos de versoes
 python -m pip install --upgrade pip
 echo.
 

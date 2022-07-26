@@ -5,6 +5,10 @@ echo Criando pasta do projeto
 mkdir Infinite
 echo.
 
+echo Instalando ambiente virtual no projeto
+python -m venv Lothon\venv
+echo.
+
 echo Posicionando no diretorio raiz do projeto
 cd Infinite
 echo.
