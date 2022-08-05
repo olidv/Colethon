@@ -18,7 +18,7 @@ cd /d C:\Apps\B3\Infinite
 echo.
 
 echo Limpando as pastas temporarias da aplicacao
-del /f /q logs\*.*  1>nul  2>&1
+rem del /f /q logs\*.*  1>nul  2>&1
 del /f /q tmp\*.*   1>nul  2>&1
 del /f /q www\*.*   1>nul  2>&1
 echo.
