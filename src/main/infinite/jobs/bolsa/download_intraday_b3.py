@@ -52,14 +52,14 @@ def download_cotacoes_intraday(data: date) -> bool:
 
     url_cotacoes_intraday = app_config.IB_url_cotacoes_intraday
     intraday_url_mask = app_config.IB_intraday_url_mask
-    intraday_zip_mask = app_config.IB_intraday_zip_mask
+    intraday_zip_name = app_config.IB_intraday_zip_name
 
     # gera a url para o arquivo ZIP na data especifica:
     url_download_zip = url_cotacoes_intraday + data.strftime(intraday_url_mask)
 
     # gera o nome do arquivo ZIP a ser salvo apos download:
     intraday_zip_name = os.path.join(app_config.RT_www_path,
-                                     data.strftime(intraday_zip_mask))
+                                     data.strftime(intraday_zip_name))
 
     # se nao conseguir fazer download do arquivo ZIP:
     if commons.download_file(url_download_zip, intraday_zip_name):

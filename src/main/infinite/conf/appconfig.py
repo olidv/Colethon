@@ -65,6 +65,7 @@ class AppConfig:
     LC_job_interval: int = 0
     LC_caixa_loterias_url: list[tuple[str, ...]] = None
     LC_text_resultado: str = ''
+    LC_loteria_htm_mask: str = ''
     LC_loteria_htm_name: str = ''
     LC_ctrl_file_mask: str = ''
 
@@ -89,6 +90,7 @@ class AppConfig:
     IB_url_cotacoes_intraday: str = ''
     IB_intraday_url_mask: str = ''
     IB_intraday_zip_mask: str = ''
+    IB_intraday_zip_name: str = ''
     IB_ctrl_file_mask: str = ''
 
     # Parametrizacao do job para compactar arquivos CSV nos terminais MT5:
@@ -170,6 +172,7 @@ class AppConfig:
         # Parametrizacao do job para download dos resultados das loterias da Caixa EF:
         self.LC_job_interval = parser.getint("LOTERIA_CAIXA", "job_interval")
         self.LC_text_resultado = parser.get("LOTERIA_CAIXA", "text_resultado")
+        self.LC_loteria_htm_mask = parser.get("LOTERIA_CAIXA", "loteria_htm_mask")
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
         self.LC_ctrl_file_mask = parser.get("LOTERIA_CAIXA", "ctrl_file_mask")
 
@@ -199,6 +202,7 @@ class AppConfig:
         self.IB_url_cotacoes_intraday = parser.get("INTRADAY_B3", "url_cotacoes_intraday")
         self.IB_intraday_url_mask = parser.get("INTRADAY_B3", "intraday_url_mask")
         self.IB_intraday_zip_mask = parser.get("INTRADAY_B3", "intraday_zip_mask")
+        self.IB_intraday_zip_name = parser.get("INTRADAY_B3", "intraday_zip_name")
         self.IB_ctrl_file_mask = parser.get("INTRADAY_B3", "ctrl_file_mask")
 
         # Parametrizacao do job para compactar arquivos CSV nos terminais MT5:

@@ -12,7 +12,7 @@
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
-from infinite.jobs.download_loterias_caixa import DownloadLoteriasCaixa
+from infinite.jobs.caixa.download_loterias_caixa import DownloadLoteriasCaixa
 
 
 # ----------------------------------------------------------------------------

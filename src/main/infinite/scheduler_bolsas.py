@@ -21,11 +21,11 @@ import schedule
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.parallel_task import run_threaded
-from infinite.jobs.download_ibovespa_b3 import DownloadIbovespaB3
-from infinite.jobs.download_intraday_b3 import DownloadIntradayB3
-from infinite.jobs.download_loterias_caixa import DownloadLoteriasCaixa
-from infinite.jobs.zip_files_mql5 import ZipFilesMql5
-from infinite.jobs.move_files_intranet import MoveFilesIntranet
+from infinite.jobs.bolsa.download_ibovespa_b3 import DownloadIbovespaB3
+from infinite.jobs.bolsa.download_intraday_b3 import DownloadIntradayB3
+from infinite.jobs.caixa.download_loterias_caixa import DownloadLoteriasCaixa
+from infinite.jobs.infra.zip_files_mql5 import ZipFilesMql5
+from infinite.jobs.infra.move_files_intranet import MoveFilesIntranet
 
 
 # ----------------------------------------------------------------------------
