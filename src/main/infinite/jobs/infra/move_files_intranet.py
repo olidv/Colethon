@@ -38,17 +38,6 @@ logger = logging.getLogger(__name__)
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
-# gera o nome do arquivo de controle para indicar status do job:
-def arquivo_controle(data: date) -> str:
-    # aplica a mascara na data fornecida, configurada no INI,
-    ctrl_file_name = data.strftime(app_config.MI_ctrl_file_mask)
-
-    # e identifica o path onde sera salvo:
-    ctrl_file_name = os.path.join(app_config.RT_tmp_path, ctrl_file_name)
-
-    return ctrl_file_name
-
-
 # verifica se o computador esta conectado na rede interna e esta ok para copias:
 def intranet_online(dir_shared: str) -> bool:
     logger.debug("Verificando conexao com intranet acessando pasta compartilhada '%s'.", dir_shared)
@@ -320,7 +309,7 @@ class MoveFilesIntranet(AbstractJob):
         logger.debug("Processando copia/transferencia de arquivos para a data '%s'", hoje)
 
         # gera o nome do arquivo de controle para a data de hoje.
-        ctrl_file_job = arquivo_controle(hoje)
+        ctrl_file_job = commons.arquivo_controle(app_config.MI_ctrl_file_mask)
         logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
 
         # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.

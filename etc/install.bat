@@ -51,6 +51,7 @@ pip install -U wheel
 pip install -U setuptools
 pip install -U PyYAML
 pip install -U requests
+pip install -U beautifulsoup4
 pip install -U selenium
 pip install -U schedule
 pip install -U Send2Trash

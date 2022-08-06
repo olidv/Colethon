@@ -26,12 +26,13 @@ rmdir /s /q dist  1>nul  2>&1
 echo.
 
 echo Criando nova estrutura para distribuir o pacote do executavel
-mkdir dist  1>nul  2>&1
-mkdir dist\bin  1>nul  2>&1
+mkdir dist       1>nul  2>&1
+mkdir dist\bin   1>nul  2>&1
 mkdir dist\conf  1>nul  2>&1
+mkdir dist\lib   1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
-mkdir dist\tmp  1>nul  2>&1
-mkdir dist\www  1>nul  2>&1
+mkdir dist\tmp   1>nul  2>&1
+mkdir dist\www   1>nul  2>&1
 echo.
 
 echo Atualizando a lista de dependencias do projeto [ requirements ]
@@ -51,6 +52,10 @@ echo Copiando para distribuicao os arquivos de resources e scripts
 copy src\scripts\*.* dist\bin\
 copy src\resources\prod\*.* dist\conf\
 copy src\resources\README.md dist\
+echo.
+
+echo Copiando para distribuicao as dependencias de libraries externas
+copy lib\*.* dist\lib\
 echo.
 
 echo Compactando o build e gerando pacote de distribuicao da release [ ZIP ]

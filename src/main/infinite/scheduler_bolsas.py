@@ -24,6 +24,7 @@ from infinite.util.parallel_task import run_threaded
 from infinite.jobs.bolsa.download_ibovespa_b3 import DownloadIbovespaB3
 from infinite.jobs.bolsa.download_intraday_b3 import DownloadIntradayB3
 from infinite.jobs.caixa.download_loterias_caixa import DownloadLoteriasCaixa
+from infinite.jobs.caixa.compute_sorteios_loterias import ComputeSorteiosLoterias
 from infinite.jobs.infra.zip_files_mql5 import ZipFilesMql5
 from infinite.jobs.infra.move_files_intranet import MoveFilesIntranet
 
@@ -81,6 +82,9 @@ def main():
 
     # Download dos Resultados das Loterias da Caixa:
     queue_jobs.put(DownloadLoteriasCaixa())
+
+    # Processamento dos sorteios das das Loterias:
+    queue_jobs.put(ComputeSorteiosLoterias())
 
     # Compactar arquivos CSV nos terminais MT5
     queue_jobs.put(ZipFilesMql5())

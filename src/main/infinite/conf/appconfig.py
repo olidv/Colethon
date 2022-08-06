@@ -30,6 +30,7 @@ class AppConfig:
 
     # Estrutura de diretorios da aplicacao:
     RT_app_home: str = ''
+    RT_lib_path: str = ''
     RT_log_path: str = ''
     RT_www_path: str = ''
     RT_tmp_path: str = ''
@@ -68,6 +69,13 @@ class AppConfig:
     LC_loteria_htm_mask: str = ''
     LC_loteria_htm_name: str = ''
     LC_ctrl_file_mask: str = ''
+
+    # Parametrizacao dos processamentos das loterias:
+    JC_job_interval: int = 0
+    JC_table_class_find: str = ''
+    JC_sorteios_csv_name: str = ''
+    JC_jlothon_batch: str = ''
+    JC_ctrl_file_mask: str = ''
 
     # Parametrizacao do mercado da bolsa B3:
     B3_uri_site: str = ''
@@ -137,6 +145,7 @@ class AppConfig:
 
         # com o parser, carrega o arquivo INI nos parametros da dataclass:
         self.RT_app_home = parser.get("ROOT", "app_home")
+        self.RT_lib_path = parser.get("ROOT", "lib_path")
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_www_path = parser.get("ROOT", "www_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
@@ -178,6 +187,13 @@ class AppConfig:
 
         loterias = parser.get("LOTERIA_CAIXA", "caixa_loterias_url").split(',')
         self.LC_caixa_loterias_url = [tuple(link.strip().split(';')) for link in loterias]
+
+        # Parametrizacao do job para processamento dos sorteios das loterias:
+        self.JC_job_interval = parser.getint("JOGO_COMPUTADO", "job_interval")
+        self.JC_table_class_find = parser.get("JOGO_COMPUTADO", "table_class_find")
+        self.JC_sorteios_csv_name = parser.get("JOGO_COMPUTADO", "sorteios_csv_name")
+        self.JC_jlothon_batch = parser.get("JOGO_COMPUTADO", "jlothon_batch")
+        self.JC_ctrl_file_mask = parser.get("JOGO_COMPUTADO", "ctrl_file_mask")
 
         # Parametrizacao do acesso ao web site da B3:
         self.B3_uri_site = parser.get("B3", "uri_site")

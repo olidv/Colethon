@@ -38,17 +38,6 @@ logger = logging.getLogger(__name__)
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
-# gera o nome do arquivo de controle para indicar status do job:
-def arquivo_controle(data: date) -> str:
-    # aplica a mascara na data fornecida, configurada no INI,
-    ctrl_file_name = data.strftime(app_config.LC_ctrl_file_mask)
-
-    # e identifica o path onde sera salvo:
-    ctrl_file_name = os.path.join(app_config.RT_tmp_path, ctrl_file_name)
-
-    return ctrl_file_name
-
-
 # efetua o download do arquivo de resultados da loteria a partir da URL configurada pra este job:
 def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str) -> bool:
     try:
@@ -151,7 +140,7 @@ class DownloadLoteriasCaixa(AbstractJob):
         logger.debug("Processando downloads para a data '%s'", hoje)
 
         # gera o nome do arquivo de controle para a data de hoje.
-        ctrl_file_job = arquivo_controle(hoje)
+        ctrl_file_job = commons.arquivo_controle(app_config.LC_ctrl_file_mask)
         logger.debug("Arquivo de controle a ser verificado hoje: %s", ctrl_file_job)
 
         # se ja existe arquivo de controle para hoje, entao o processamento foi feito antes.

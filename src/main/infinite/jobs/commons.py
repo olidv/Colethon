@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+import os
 import socket
 import logging
 from datetime import date, datetime
@@ -19,6 +20,7 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
 # Own/Project modules
+from infinite.conf import app_config
 
 
 # ----------------------------------------------------------------------------
@@ -32,6 +34,18 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------
 # FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
+
+# gera o nome do arquivo de controle para indicar status do job:
+def arquivo_controle(ctrl_file_mask: str) -> str:
+    # aplica a mascara na data fornecida, configurada no INI,
+    hoje = date.today()
+    ctrl_file_name = hoje.strftime(ctrl_file_mask)
+
+    # e identifica o path onde sera salvo:
+    ctrl_file_name = os.path.join(app_config.RT_tmp_path, ctrl_file_name)
+
+    return ctrl_file_name
+
 
 # verifica se o computador possui conexao com a internet e o site fornecido esta ok:
 def web_online(uri_site: str, uri_port: int) -> bool:
