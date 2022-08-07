@@ -263,12 +263,19 @@ def executar_jlothon(tag_loteria: str) -> bool | None:
     # indica a loteria para o jLothon como argumento do script batch:
     jlothon: str = app_config.JC_jlothon_batch.format(app_config.RT_www_path, tag_loteria)
     workdir: str = app_config.RT_lib_path
+    try:
+        # executa o programa jLothon para processar os jogos da loteria indicada:
+        exit_code: int = subprocess.call(jlothon, cwd=workdir)
 
-    # executa o programa jLothon para processar os jogos da loteria indicada:
-    exit_code: int = subprocess.call(jlothon, cwd=workdir)
+        # informa True se foi executado com sucesso ou False caso contrario.
+        return exit_code == 0
 
-    # informa True se foi executado com sucesso ou False caso contrario.
-    return exit_code == 0
+    # qualquer erro significa que nao pode executar o programa jLothon:
+    except (subprocess.CalledProcessError, OSError) as err:
+        logger.critical(f"Erro ao tentar executar o jLothon para a loteria '{tag_loteria}'.\n"
+                        f"\tComando executado: {workdir} / {jlothon} \n"
+                        f"\tERRO: {repr(err)}")
+        return False
 
 
 # ----------------------------------------------------------------------------
