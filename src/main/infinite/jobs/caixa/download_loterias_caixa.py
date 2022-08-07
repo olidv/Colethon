@@ -22,8 +22,8 @@ from selenium.webdriver.common.by import By
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.eve import *
-from infinite.jobs.abstract_job import AbstractJob
 from infinite.jobs import commons
+from infinite.jobs.abstract_job import AbstractJob
 
 
 # ----------------------------------------------------------------------------

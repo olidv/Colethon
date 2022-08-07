@@ -18,9 +18,9 @@ from datetime import date, timedelta
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.eve import *
-from infinite.jobs.abstract_job import AbstractJob
-from infinite.jobs import commons
 from infinite.util import feriado
+from infinite.jobs import commons
+from infinite.jobs.abstract_job import AbstractJob
 
 
 # ----------------------------------------------------------------------------
