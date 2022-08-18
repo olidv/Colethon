@@ -16,6 +16,7 @@ from datetime import date, datetime
 
 # Libs/Frameworks modules
 import requests
+import send2trash
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
@@ -156,5 +157,21 @@ def extract_date(text: str, mask: str) -> date:
     except ValueError as err:
         logger.error("Nao foi possivel obter a data do string '%s' usando mascara '%s'. ERRO: %s",
                      text, mask, repr(err))
+
+
+# deleta o arquivo e envia para lixeira:
+def delete_file(file_name: str) -> bool:
+    # exclui o arquivo, enviando-o para a lixeira:
+    try:
+        send2trash.send2trash(file_name)
+        return True
+
+    # se ocorrer qualquer erro na exclusao, entao ignora:
+    except Exception as ex:
+        # apenas imprime o erro no log e prossegue:
+        logger.error("Erro ao tentar excluir arquivo '%s' e enviar para a lixeira:\n %s",
+                     file_name, repr(ex))
+        return False
+
 
 # ----------------------------------------------------------------------------

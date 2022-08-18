@@ -16,8 +16,6 @@ import logging
 from datetime import date, datetime
 
 # Libs/Frameworks modules
-import send2trash
-
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.eve import *
@@ -89,13 +87,7 @@ def compacta_files_csv(files_date_contents: list[str], date_file_csv: date) -> N
     logger.debug("Movendo para lixeira os arquivos '%s' na pasta 'Terminal_Files'...",
                  date_file_csv.strftime("%Y.%m.%d_*.csv"))
     for csv in files_date_contents:
-        # se ocorrer algum erro na exclusao, entao ignora aquele arquivo:
-        try:
-            send2trash.send2trash(csv)
-        except Exception as ex:
-            # apenas imprime o erro no log e prossegue:
-            logger.error("Erro ao tentar excluir arquivo '%s' na pasta 'Terminal_Files':\n %s",
-                         csv, repr(ex))
+        commons.delete_file(csv)
 
 
 # ----------------------------------------------------------------------------

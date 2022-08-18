@@ -17,8 +17,6 @@ import logging
 from datetime import date, timedelta
 
 # Libs/Frameworks modules
-import send2trash
-
 # Own/Project modules
 from infinite.conf import app_config
 from infinite.util.eve import *
@@ -197,7 +195,7 @@ def delete_old_logs(src_path: str, mask_files: str, cut_off: int, mask_date: str
             date_log_file = commons.extract_date_file(os.path.basename(log_file), mask_date)
             if date_log_file is not None and date_log_file < date_cutoff:
                 # apaga este arquivo mais antigo:
-                send2trash.send2trash(log_file)
+                commons.delete_file(log_file)
                 del_count += 1
 
         if del_count == 0:
@@ -241,7 +239,7 @@ def delete_old_ctrl(src_path: str, mask_files: str, cut_off: int, mask_date: str
             date_log_file = commons.extract_date(ctrl_file_name[1:11], mask_date)
             if date_log_file is not None and date_log_file < date_cutoff:
                 # apaga este arquivo mais antigo:
-                send2trash.send2trash(ctrl_file)
+                commons.delete_file(ctrl_file)
                 del_count += 1
 
         if del_count == 0:
