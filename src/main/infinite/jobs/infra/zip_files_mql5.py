@@ -89,7 +89,13 @@ def compacta_files_csv(files_date_contents: list[str], date_file_csv: date) -> N
     logger.debug("Movendo para lixeira os arquivos '%s' na pasta 'Terminal_Files'...",
                  date_file_csv.strftime("%Y.%m.%d_*.csv"))
     for csv in files_date_contents:
-        send2trash.send2trash(csv)
+        # se ocorrer algum erro na exclusao, entao ignora aquele arquivo:
+        try:
+            send2trash.send2trash(csv)
+        except Exception as ex:
+            # apenas imprime o erro no log e prossegue:
+            logger.error("Erro ao tentar excluir arquivo '%s' na pasta 'Terminal_Files':\n %s",
+                         csv, repr(ex))
 
 
 # ----------------------------------------------------------------------------
