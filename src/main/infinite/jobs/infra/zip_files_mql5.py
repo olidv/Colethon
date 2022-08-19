@@ -72,7 +72,8 @@ def list_files_date_contents(date_file_csv: date) -> list[str]:
 
 
 # compacta a relacao de arquivos encontrados, na propria pasta do terminal:
-def compacta_files_csv(files_date_contents: list[str], date_file_csv: date) -> None:
+def compacta_files_csv(files_path: str, files_date_contents: list[str],
+                       date_file_csv: date) -> None:
     # utiliza a data corrente para gerar o nome do arquivo ZIP:
     name_file_zip = date_file_csv.strftime("Files_%Y-%m-%d.zip")
 
@@ -86,8 +87,9 @@ def compacta_files_csv(files_date_contents: list[str], date_file_csv: date) -> N
     # apos compactar os arquivos, elimina-os da pasta, movendo para lixeira:
     logger.debug("Movendo para lixeira os arquivos '%s' na pasta 'Terminal_Files'...",
                  date_file_csv.strftime("%Y.%m.%d_*.csv"))
-    for csv in files_date_contents:
-        commons.delete_file(csv)
+    for file_csv in files_date_contents:
+        path_file_csv: str = os.path.join(files_path, file_csv)
+        commons.delete_file(path_file_csv)
 
 
 # ----------------------------------------------------------------------------
@@ -212,7 +214,7 @@ class ZipFilesMql5(AbstractJob):
                     break  # prossegue para a proxima pasta de terminal MT5...
 
                 # compacta a relacao de arquivos encontrados, na propria pasta do terminal:
-                compacta_files_csv(files_date_contents, date_file_csv)
+                compacta_files_csv(terminal_files, files_date_contents, date_file_csv)
 
                 # verifica se ainda ha mais arquivos CSV na pasta do terminal:
                 files_contents = list_files_contents()
