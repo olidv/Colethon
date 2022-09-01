@@ -1,6 +1,9 @@
 
 --- PENDENTE --------------------------------------------------------
 
+Criar job para gerar 100 palpites de jogos para todas as loterias "computadas" em Java.
+    Alterar Janitor para copiar palpites para pasta de upload no Google Drive.
+
 Mover job de baixar de resultados de loterias para tarefas lotéricas.
 
 Adotar "async def" nos métodos de jobs.
@@ -55,3 +58,5 @@ Criar novo job para download dos arquivos de resultados das loterias da caixa.
 
 Incluir zip do diretorio \dist\*.* no InFiniTe.
     <app>.zip
+
+---------------------------------------------------------------------
