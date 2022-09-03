@@ -1,8 +1,11 @@
 
---- PENDENTE --------------------------------------------------------
+* Em 02/09/2022 gastou de 04:36 a 06:14 para executar todos os jobs: 1h38min.
 
-Criar job para gerar 100 palpites de jogos para todas as loterias "computadas" em Java.
-    Alterar Janitor para copiar palpites para pasta de upload no Google Drive.
+Após mudança no scheduler:
+    * Em 03/09/2022 gastou de 05:18 a 06:04 para executar todos os jobs: 0h46min.
+
+
+--- PENDENTE --------------------------------------------------------
 
 Mover job de baixar de resultados de loterias para tarefas lotéricas.
 

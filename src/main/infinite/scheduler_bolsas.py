@@ -58,6 +58,13 @@ def schedule_job(job_obj):
     logger.info(f"Agendado job '{job_obj.job_id}' a cada {job_obj.job_interval} minutos.")
 
 
+# efetua a execucao inicial do job, antes do schedule, para acelerar o processamento geral:
+def execute_job(job_obj):
+    logger.info(f"Execucao inicial do job '{job_obj.job_id}' antes do Schecule...")
+    # o job sera executado em nova thread:
+    run_threaded(job_obj.run_job, cancel_job)
+
+
 # cancela o job fornecido:
 def cancel_job(job_id):
     schedule.clear(job_id)
@@ -106,10 +113,13 @@ def main():
         if idles is None:
             # se finalizou o ultimo job agendado, verifica se ainda ha job enfileirado:
             if not queue_jobs.empty():
+                job_obj = queue_jobs.get()
                 # se ha job enfileirado, entao agenda proximo job:
-                schedule_job(queue_jobs.get())
+                schedule_job(job_obj)
                 # atualiza idles com tempo ate a execucao do job recem agendado:
                 idles = schedule.idle_seconds()
+                # para nao ficar parado aguardando, ja forca uma 1a. execucao do job:
+                execute_job(job_obj)
             elif loop_on:  # se estiver em 'loop-continuo':
                 # aguarda determinado tempo (configurado) se nao tiver mais jobs:
                 idles = time_wait
