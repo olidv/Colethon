@@ -58,7 +58,7 @@ def list_files_date_contents(date_file_csv: date) -> list[str]:
     # monta mascara para identificar outros arquivos da mesma data:
     mask_files_date_csv = date_file_csv.strftime("%Y.%m.%d_*.csv")
 
-    # verifica se ha arquivos CSV na pasta do  terminal para a data fornecida:
+    # verifica se ha arquivos CSV na pasta do terminal para a data fornecida:
     files_date_contents = glob.glob(mask_files_date_csv)
     len_date_contents = len(files_date_contents)
     if len_date_contents > 0:
