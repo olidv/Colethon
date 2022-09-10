@@ -48,10 +48,10 @@ echo Compactando o codigo fonte para criar pacote executavel [ ZIP ]
 python -m zipfile -c dist\bin\infinite.zip src\main\infinite src\main\__main__.py
 echo.
 
-echo Copiando para distribuicao os arquivos de resources e scripts
-copy src\scripts\*.* dist\bin\
-copy src\resources\prod\*.* dist\conf\
-copy src\resources\README.md dist\
+echo Copiando para distribuicao os arquivos de resources e batches
+copy src\batches\*.*          dist\bin\
+copy src\resources\prod\*.*   dist\conf\
+copy src\resources\README.md  dist\
 echo.
 
 echo Copiando para distribuicao as dependencias de libraries externas
