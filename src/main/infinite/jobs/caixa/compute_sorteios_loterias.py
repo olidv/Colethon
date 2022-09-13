@@ -39,11 +39,15 @@ TAGS_LOTERIAS: dict[str: str] = {
     'duplasena': 'p',
     'lotofacil': 'l',
     'lotomania': 'n',
-    'quina': 'q',
     'megasena': 'm',
+    'quina': 'q',
     'supersete': 's',
-    'timemania': 't'
+    'timemania': 't',
+    'maismilionaria': 'r'
 }
+
+# apenas estas loterias possuem computacao implementaca no jLothon:
+TAGS_JLOTHON: str = "dplmqr"
 
 
 # ----------------------------------------------------------------------------
@@ -254,28 +258,29 @@ def export_sorteios_loteria(nome_loteria: str, list_sorteios: list[tuple[int, ..
     return qt_rows
 
 
-def executar_jlothon(tag_loteria: str) -> bool | None:
+def executar_jlothon(nome_loteria, tag_loteria: str):
     # somente executa rotina Java para processamento e geracao dos jogos computados das loterias:
     # Dia de Sorte, Dupla Sena, Lotofacil, Mega-Sena e Quina.
-    if tag_loteria not in "dplmq":
-        return None
+    if tag_loteria not in TAGS_JLOTHON:
+        logger.debug(f"{nome_loteria}: Programa jLothon ainda nao processa essa loteria.")
+        return
 
     # indica a loteria para o jLothon como argumento do script batch:
     jlothon: str = app_config.JC_jlothon_batch.format(app_config.RT_www_path, tag_loteria)
     workdir: str = app_config.RT_lib_path
     try:
         # executa o programa jLothon para processar os jogos da loteria indicada:
-        exit_code: int = subprocess.call(jlothon, cwd=workdir)
+        subprocess.call(jlothon, cwd=workdir)
 
         # informa True se foi executado com sucesso ou False caso contrario.
-        return exit_code == 0
+        logger.debug(f"{nome_loteria}: Programa jLothon foi executado com sucesso.")
 
     # qualquer erro significa que nao pode executar o programa jLothon:
     except (subprocess.CalledProcessError, OSError) as err:
-        logger.critical(f"Erro ao tentar executar o jLothon para a loteria '{tag_loteria}'.\n"
-                        f"\tComando executado: {workdir} / {jlothon} \n"
+        logger.critical(f"Erro ao tentar executar o jLothon para a loteria '{tag_loteria}'. "
+                        f"Geracao de jogos computados abortada.\n"
+                        f"\tComando executado: {workdir} / {jlothon}\n"
                         f"\tERRO: {repr(err)}")
-        return False
 
 
 # ----------------------------------------------------------------------------
@@ -366,14 +371,10 @@ class ComputeSorteiosLoterias(AbstractJob):
                          f"loteria em arquivo CSV.")
 
             # ao final, executa rotina Java para processamento e geracao dos jogos computados:
-            run_ok: bool = executar_jlothon(tag_loteria)
-            if run_ok is None:
-                logger.debug(f"{nome_loteria}: Programa jLothon ainda nao processa essa loteria.")
-            elif run_ok:
-                logger.debug(f"{nome_loteria}: Programa jLothon foi executado com sucesso.")
-            else:
-                logger.error(f"{nome_loteria}: Erro na execucao do programa jLothon. "
-                             f"Geracao de jogos computados abortada.")
+            executar_jlothon(nome_loteria, tag_loteria)
+
+        # a loteria mais-milionaria ja esta em arquivo CSV, nao precisa fazer a leitura/parsing:
+        executar_jlothon("MAIS-MILIONARIA", 'r')
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()

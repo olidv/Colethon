@@ -29,6 +29,7 @@ echo Criando nova estrutura para distribuir o pacote do executavel
 mkdir dist       1>nul  2>&1
 mkdir dist\bin   1>nul  2>&1
 mkdir dist\conf  1>nul  2>&1
+mkdir dist\data  1>nul  2>&1
 mkdir dist\lib   1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
 mkdir dist\tmp   1>nul  2>&1
@@ -52,6 +53,10 @@ echo Copiando para distribuicao os arquivos de resources e batches
 copy src\batches\*.*          dist\bin\
 copy src\resources\prod\*.*   dist\conf\
 copy src\resources\README.md  dist\
+echo.
+
+echo Copiando para distribuicao os arquivos de dados
+copy data\*.* dist\data\
 echo.
 
 echo Copiando para distribuicao as dependencias de libraries externas

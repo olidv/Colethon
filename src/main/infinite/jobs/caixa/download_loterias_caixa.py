@@ -10,9 +10,10 @@
 
 # Built-in/Generic modules
 import os
-import logging
+import shutil
 import time
 from datetime import date
+import logging
 
 # Libs/Frameworks modules
 from selenium import webdriver
@@ -39,40 +40,83 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------
 
 # efetua o download do arquivo de resultados da loteria a partir da URL configurada pra este job:
-def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str) -> bool:
+def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
+                                download_or_scrap: bool) -> bool:
     try:
-        # acessa link desta Loteria da Caixa com selenium e simula download com click.
+        # acessa link desta Loteria da Caixa com selenium:
         browser.get(link)
         logger.debug(f"A pagina da Loteria '{name}' foi carregada com sucesso.")
 
         # timeout para o browser aguardar o carregamento da pagina inteira.
         time.sleep(app_config.CX_timeout_loadpage)
 
-        # localiza o elemento HTML do tipo <a href> para simular click:
-        el_a = browser.find_element(by=By.PARTIAL_LINK_TEXT, value=app_config.LC_text_resultado)
-        logger.debug(f"Elemento HTML encontrado: {el_a}")
+        # verifica se a loteria tem resultados para download:
+        loteria_htm_name: str = ''
+        if download_or_scrap:  # True == tem resultados para fazer o download...
+            # p/ simular download com click, localiza o elemento HTML do tipo <a href>:
+            el_a = browser.find_element(by=By.PARTIAL_LINK_TEXT, value=app_config.LC_text_resultado)
+            logger.debug(f"Elemento HTML encontrado: {el_a}")
 
-        # clica no <a> para abertura da pagina de resultados, para salvar em disco.
-        el_a.click()
-        logger.debug("Efetuado click na pagina para download da Loteria '%s'.", name)
+            # clica no <a> para abertura da pagina de resultados, para salvar em disco.
+            el_a.click()
+            logger.debug("Efetuado click na pagina para download da Loteria '%s'.", name)
 
-        if len(browser.window_handles) > 1:
-            logger.debug("Ativando segunda aba do browser para download da Loteria.")
-            window_after = browser.window_handles[1]
-            browser.switch_to.window(window_name=window_after)
+            if len(browser.window_handles) > 1:
+                logger.debug("Ativando segunda aba do browser para download da Loteria.")
+                window_after = browser.window_handles[1]
+                browser.switch_to.window(window_name=window_after)
 
-        # timeout para o browser aguardar o carregamento da pagina para download.
-        time.sleep(app_config.CX_timeout_download)
+            # timeout para o browser aguardar o carregamento da pagina para download.
+            time.sleep(app_config.CX_timeout_download)
 
-        # gera o nome do arquivo HTM a ser salvo apos download dos resultados:
-        loteria_htm_name = app_config.LC_loteria_htm_name
-        loteria_htm_name = loteria_htm_name.format(name)
-        loteria_htm_path = os.path.join(app_config.RT_www_path, loteria_htm_name)
+            # gera o nome do arquivo HTM a ser salvo apos download dos resultados:
+            loteria_htm_name = app_config.LC_loteria_htm_name
+            loteria_htm_name = loteria_htm_name.format(name)
+            loteria_htm_path = os.path.join(app_config.RT_www_path, loteria_htm_name)
 
-        # obtem o HTML diretamente da pagina de resultados aberta e salva em arquivo:
-        logger.debug("Iniciando download de resultados da Loteria '%s' apos click na pagina.", name)
-        with open(loteria_htm_path, "w", encoding="utf-8") as file_htm:
-            file_htm.write(browser.page_source)
+            # obtem o HTML diretamente da pagina de resultados aberta e salva em arquivo:
+            logger.debug("Iniciando download de resultados da Loteria '%s' apos click na pagina.",
+                         name)
+            with open(loteria_htm_path, "w", encoding="utf-8") as file_htm:
+                file_htm.write(browser.page_source)
+
+        else:  # False == eh preciso fazer scraping para extrair o resultado da pagina:
+            logger.debug("Iniciando scraping de resultados da Loteria '%s' em sua pagina.", name)
+            # identifica o numero do ultimo concurso e a respectiva data do sorteio:
+            el_span = browser.find_element(by=By.XPATH, value=app_config.LC_xpath_concurso)
+            logger.debug(f"Titulo da Loteria: Concurso = {el_span.text}")
+            titulo_concurso = el_span.text.split(' ')
+            if len(titulo_concurso) != 3:  # ocorreu alguma mudanca na pagina...
+                return False
+            id_concurso = int(titulo_concurso[1])
+
+            # identifica as dezenas sorteadas:
+            dezenas: tuple = ()  # coloca o nr do concurso com as dezenas
+            for li in browser.find_elements(by=By.XPATH, value=app_config.LC_xpath_dezenas):
+                dezena = int(li.text)
+                dezenas += (dezena,)
+            logger.debug(f"Dezenas sorteadas no Concurso #{id_concurso} da Loteria: {dezenas}")
+
+            # gera o nome do arquivo CSV a ser salvo apos scraping dos resultados:
+            loteria_htm_name = app_config.JC_sorteios_csv_name.format(name)
+            loteria_htm_path = os.path.join(app_config.RT_data_path, loteria_htm_name)
+
+            # carrega os sorteios anteriores e obtem o numero de concursos ja lidos/registrados:
+            with open(loteria_htm_path, 'r') as csv:
+                nr_concursos = len(csv.readlines())
+
+            # se o concurso recem lido ja estiver sido lido antes, entao ignora:
+            if nr_concursos == id_concurso:
+                logger.info(f"O concurso #{id_concurso} ja foi lido e salvo em CSV anteriormente.")
+            else:
+                logger.debug(f"Incluindo concurso #{id_concurso} no arquivo '{loteria_htm_name}'.")
+                # ordena as dezenas e transforma em string para salvar em CSV:
+                line_dezenas = ','.join([str(n) for n in sorted(dezenas)])
+                with open(loteria_htm_path, 'a') as csv:
+                    csv.write(line_dezenas + '\n')  # tem q mudar de linha
+
+            # eh preciso copiar esse arquivo CSV para www:
+            shutil.copy(loteria_htm_path, app_config.RT_www_path)
 
         logger.debug("Finalizado download dos resultados da Loteria '%s' no arquivo '%s'.",
                      name, loteria_htm_name)
@@ -173,7 +217,7 @@ class DownloadLoteriasCaixa(AbstractJob):
             return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # percorre lista de loterias para processar cada download.
-        for name, link in caixa_loterias_url:
+        for name, link, flag in caixa_loterias_url:
             # inicia navegador para download com selenium:
             browser = commons.open_webdriver_chrome(app_config.RT_www_path,
                                                     app_config.CX_timeout_download)
@@ -187,7 +231,7 @@ class DownloadLoteriasCaixa(AbstractJob):
 
             # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
             logger.info("Iniciando download da loteria '%s' a partir do site '%s'...", name, link)
-            if download_resultados_loteria(browser, name, link):
+            if download_resultados_loteria(browser, name, link, to_bool(flag)):
                 logger.info("Download dos resultados da Loteria '%s' efetuado com sucesso.", name)
             else:
                 # se alguma das loterias apresentar erro, entao retorna mais tarde e tenta de novo:

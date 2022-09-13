@@ -30,6 +30,7 @@ class AppConfig:
 
     # Estrutura de diretorios da aplicacao:
     RT_app_home: str = ''
+    RT_data_path: str = ''
     RT_lib_path: str = ''
     RT_log_path: str = ''
     RT_www_path: str = ''
@@ -65,6 +66,8 @@ class AppConfig:
     # Parametrizacao das loterias da Caixa EF:
     LC_job_interval: int = 0
     LC_caixa_loterias_url: list[tuple[str, ...]] = None
+    LC_xpath_concurso: str = ''
+    LC_xpath_dezenas: str = ''
     LC_text_resultado: str = ''
     LC_loteria_htm_mask: str = ''
     LC_loteria_htm_name: str = ''
@@ -145,6 +148,7 @@ class AppConfig:
 
         # com o parser, carrega o arquivo INI nos parametros da dataclass:
         self.RT_app_home = parser.get("ROOT", "app_home")
+        self.RT_data_path = parser.get("ROOT", "data_path")
         self.RT_lib_path = parser.get("ROOT", "lib_path")
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_www_path = parser.get("ROOT", "www_path")
@@ -180,6 +184,8 @@ class AppConfig:
 
         # Parametrizacao do job para download dos resultados das loterias da Caixa EF:
         self.LC_job_interval = parser.getint("LOTERIA_CAIXA", "job_interval")
+        self.LC_xpath_concurso = parser.get("LOTERIA_CAIXA", "xpath_concurso")
+        self.LC_xpath_dezenas = parser.get("LOTERIA_CAIXA", "xpath_dezenas")
         self.LC_text_resultado = parser.get("LOTERIA_CAIXA", "text_resultado")
         self.LC_loteria_htm_mask = parser.get("LOTERIA_CAIXA", "loteria_htm_mask")
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
