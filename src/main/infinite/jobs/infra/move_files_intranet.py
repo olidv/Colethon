@@ -164,11 +164,11 @@ def move_source_destiny(src_path: str, dst_path: str, mask_files: str) -> None:
 
     # qualquer erro significa que ainda nao pode acessar a rede interna...
     except OSError as err:
-        logger.error("Nao foi possivel mover arquivos em '%s' para '%s'. ERRO: %s",
-                     src_path, dst_path, repr(err))
+        logger.error("Nao foi possivel mover arquivos '%s' em '%s' para '%s'. ERRO: %s",
+                     mask_files, src_path, dst_path, repr(err))
     except Exception as ex:
-        logger.error("Nao foi possivel mover arquivos em '%s' para '%s'. ERRO: %s",
-                     src_path, dst_path, repr(ex))
+        logger.error("Nao foi possivel mover arquivos '%s' em '%s' para '%s'. ERRO: %s",
+                     mask_files, src_path, dst_path, repr(ex))
 
 
 # realiza limpeza da pasta de logs, apagando os arquivos mais antigos (do corte pra tras):
