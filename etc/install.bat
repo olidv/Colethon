@@ -14,15 +14,15 @@ python -m pip install --upgrade pip
 echo.
 
 echo Criando pasta do projeto
-mkdir Infinite
+mkdir Colethon
 echo.
 
 echo Instalando ambiente virtual no projeto
-python -m venv Infinite\venv
+python -m venv Colethon\venv
 echo.
 
 echo Posicionando no diretorio raiz do projeto
-cd Infinite
+cd Colethon
 echo.
 
 echo Ativando o ambiente virtual do projeto

@@ -1,9 +1,13 @@
 """
-   Package .
-   Module  test_loterias.py
+   Package colethon.conf
+   Module  __init__.py
 
-   Modulo Suite para teste dos jobs e demais funcionalidades do Colethon.
 """
+
+__all__ = [
+    'app_config'
+]
+
 
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
@@ -12,12 +16,14 @@
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
-from colethon.jobs.caixa.download_loterias_caixa import DownloadLoteriasCaixa
+from colethon.conf.appconfig import AppConfig
 
 
 # ----------------------------------------------------------------------------
-# MAIN ENTRY-POINT
+# VARIAVEIS
 # ----------------------------------------------------------------------------
 
-def test_job():
-    DownloadLoteriasCaixa().run_job()
+# instancia global para leitura das configuracoes da aplicacao:
+app_config: AppConfig = AppConfig()  # apenas para utilizar o code-assist (type hint)...
+
+# ----------------------------------------------------------------------------

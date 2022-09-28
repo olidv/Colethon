@@ -3,12 +3,12 @@ color E
 
 rem Printa a apresentacao do build:
 echo.
-echo  BUILD DO INFINITE   [ D:\WORKSPACE\PYTHON\INFINITE\ETC\BUILD.BAT ]
+echo  BUILD DO COLETHON   [ D:\WORKSPACE\PYTHON\COLETHON\ETC\BUILD.BAT ]
 echo.
 echo.
 
 echo  ********************************************
-echo  **  INICIANDO  COMPILACAO  DO  INFINITE.  **
+echo  **  INICIANDO  COMPILACAO  DO  COLETHON.  **
 echo  ********************************************
 echo.
 echo.
@@ -46,7 +46,7 @@ forfiles /p .\src\main /s /m __pycache__ /c "cmd /c rmdir /s /q @file"  1>nul  2
 echo.
 
 echo Compactando o codigo fonte para criar pacote executavel [ ZIP ]
-python -m zipfile -c dist\bin\infinite.zip src\main\infinite src\main\__main__.py
+python -m zipfile -c dist\bin\colethon.zip src\main\colethon src\main\__main__.py
 echo.
 
 echo Copiando para distribuicao os arquivos de resources e batches
@@ -64,13 +64,13 @@ copy lib\*.* dist\lib\
 echo.
 
 echo Compactando o build e gerando pacote de distribuicao da release [ ZIP ]
-python -m zipfile -c infinite-1.0.zip dist\.
-move infinite-1.0.zip dist\.  1>nul  2>&1
+python -m zipfile -c colethon-1.0.zip dist\.
+move colethon-1.0.zip dist\.  1>nul  2>&1
 echo.
 
 echo Executando o programa para testar se tudo ok [ -t  testing ]
 cd dist\bin
-python infinite.zip -c ..\conf -t .
+python colethon.zip -c ..\conf -t .
 echo.
 
 rem Pausa final...

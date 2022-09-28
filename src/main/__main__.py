@@ -2,7 +2,7 @@
    Package .
    Module  __main__.py
 
-   Modulo principal do aplicativo Infinite, entry-point para execucao de
+   Modulo principal do aplicativo Colethon, entry-point para execucao de
    tarefas individuais ou pelo agendador utilitario do Python (lib schedule).
 """
 
@@ -17,10 +17,10 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from infinite.conf import settings
-from infinite import scheduler_bolsas
-from infinite import scheduler_loterias
-from infinite import scheduler_apostas
+from colethon.conf import settings
+from colethon import scheduler_bolsas
+from colethon import scheduler_loterias
+from colethon import scheduler_apostas
 
 
 # ----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ if __name__ != '__main__':
 def print_usage():
     print('\n'
           'Uso:\n'
-          '  python infinite.zip [opcoes]\n'
+          '  python colethon.zip [opcoes]\n'
           '\n'
           'Opcoes Gerais:\n'
           '  -b          Agenda as tarefas para Bolsas de Valores\n'
@@ -95,7 +95,7 @@ opt_cfpath = ''      # path para os arquivos de configuracao
 opt_testef = False   # Flag para teste de funcionamento
 opt_tstjob = ''      # id do job a ser executado para testes
 
-# identifica o comando/tarefa/job do Infinite a ser executado:
+# identifica o comando/tarefa/job do Colethon a ser executado:
 for opt, val in opts:
     if opt == '-b':
         opt_bolsav = True
@@ -154,7 +154,7 @@ if opt_testef:
         suite.test_job()
         logger.info("Suite de testes do job 'DownloadLoteriasCaixa' foi executado.")
     else:
-        # Informa que tudo ok ate aqui, Infinite funcionando normalmente:
+        # Informa que tudo ok ate aqui, Colethon funcionando normalmente:
         logger.info("Modulo main() executado com sucesso! opt_testef = %s", opt_testef)
 
     # aborta o processamento se esta apenas testando:

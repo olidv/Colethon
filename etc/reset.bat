@@ -21,10 +21,10 @@ cd /D D:\Publico
 echo.
 
 echo Copiando arquivos das corretoras para o terminal da respectiva plataforma
-xcopy clear\*.* C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9AA5A2E564E1326FB93349159C9D30A4\MQL5\Files  /E /C /Q /R /Y
+xcopy clear\*.*  C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9AA5A2E564E1326FB93349159C9D30A4\MQL5\Files  /E /C /Q /R /Y
 xcopy genial\*.* C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9AA5A2E564E1326FB93349159C9D30A4\MQL5\Files  /E /C /Q /R /Y
-xcopy modal\*.* C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9352866EDE8D3BAA5CDBEF2EC84D2C07\MQL5\Files  /E /C /Q /R /Y
-xcopy xm\*.* C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\886B601D7760693D209A707150753C26\MQL5\Files  /E /C /Q /R /Y
+xcopy modal\*.*  C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\9352866EDE8D3BAA5CDBEF2EC84D2C07\MQL5\Files  /E /C /Q /R /Y
+xcopy xm\*.*     C:\Users\qdev\AppData\Roaming\MetaQuotes\Terminal\886B601D7760693D209A707150753C26\MQL5\Files  /E /C /Q /R /Y
 echo.
 
 rem Pausa final...
