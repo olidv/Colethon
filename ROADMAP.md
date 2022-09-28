@@ -4,6 +4,7 @@
 Após mudança no scheduler:
     * Em 03/09/2022 gastou de 05:18 a 06:04 para executar todos os jobs: 0h46min.
 
+Renomeado projeto para Colethon. Infinite é o nome de toda a plataforma financeira.
 
 --- PENDENTE --------------------------------------------------------
 

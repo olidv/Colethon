@@ -1,5 +1,5 @@
-# InFiniTe
+# Colethon
 
-Plataforma para coleta e análise de dados para trading automatizado.
+Aplicativo para coleta diária de dados para trading automatizado e apostas lotéricas.
 
-InFiniTe = INtelligent FINancIal TEchnology.
+Parte integrante do InFiniTe = INtelligent FINancIal TEchnology.
