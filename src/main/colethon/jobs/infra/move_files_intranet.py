@@ -394,7 +394,7 @@ class MoveFilesIntranet(AbstractJob):
 
         copy_source_destiny(app_config.RT_log_path, app_config.MI_shared_app_logs,
                             app_config.RT_files_all_mask)
-        copy_source_destiny(app_config.RT_clock_logs, app_config.MI_shared_clock_logs,
+        copy_source_destiny(app_config.RT_clocker_logs, app_config.MI_shared_clocker_logs,
                             app_config.RT_files_all_mask)
         logger.debug("Finalizou copia dos arquivos logging do Colethon e Clock para outra estacao.")
 

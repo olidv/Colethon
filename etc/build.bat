@@ -50,9 +50,9 @@ python -m zipfile -c dist\bin\colethon.zip src\main\colethon src\main\__main__.p
 echo.
 
 echo Copiando para distribuicao os arquivos de resources e batches
-copy src\batches\*.*          dist\bin\
-copy src\resources\prod\*.*   dist\conf\
-copy src\resources\README.md  dist\
+copy src\batches\*.*         dist\bin\
+copy src\resources\*.ico     dist\bin\
+copy src\resources\prod\*.*  dist\conf\
 echo.
 
 echo Copiando para distribuicao os arquivos de dados

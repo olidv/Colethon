@@ -22,7 +22,7 @@ handlers:
       when: 'midnight'
       backupCount: 32
       encoding: utf8
-      filename: C:\Apps\B3\Colethon\logs\colethon.log
+      filename: C:\Apps\Infinite\Colethon\logs\colethon.log
 
 loggers:
   #schedule:

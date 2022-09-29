@@ -35,7 +35,7 @@ class AppConfig:
     RT_log_path: str = ''
     RT_www_path: str = ''
     RT_tmp_path: str = ''
-    RT_clock_logs: str = ''
+    RT_clocker_logs: str = ''
 
     RT_mt5_platform_home: str = ''
     RT_mt5_terminal_home: str = ''
@@ -120,7 +120,7 @@ class AppConfig:
     MI_shared_mt5_crashes: str = ''
     MI_shared_app_www: str = ''
     MI_shared_app_logs: str = ''
-    MI_shared_clock_logs: str = ''
+    MI_shared_clocker_logs: str = ''
     MI_shared_caixa_base: str = ''
 
     MI_ctrl_file_mask: str = ''
@@ -153,7 +153,7 @@ class AppConfig:
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_www_path = parser.get("ROOT", "www_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
-        self.RT_clock_logs = parser.get("ROOT", "clock_logs")
+        self.RT_clocker_logs = parser.get("ROOT", "clocker_logs")
 
         self.RT_mt5_platform_home = parser.get("ROOT", "mt5_platform_home")
         self.RT_mt5_terminal_home = parser.get("ROOT", "mt5_terminal_home")
@@ -243,7 +243,7 @@ class AppConfig:
         self.MI_shared_mt5_crashes = parser.get("MOVE_INTRANET", "shared_mt5_crashes")
         self.MI_shared_app_www = parser.get("MOVE_INTRANET", "shared_app_www")
         self.MI_shared_app_logs = parser.get("MOVE_INTRANET", "shared_app_logs")
-        self.MI_shared_clock_logs = parser.get("MOVE_INTRANET", "shared_clock_logs")
+        self.MI_shared_clocker_logs = parser.get("MOVE_INTRANET", "shared_clocker_logs")
         self.MI_shared_caixa_base = parser.get("MOVE_INTRANET", "shared_caixa_base")
 
         self.MI_ctrl_file_mask = parser.get("MOVE_INTRANET", "ctrl_file_mask")
