@@ -35,21 +35,15 @@ class AppConfig:
     RT_log_path: str = ''
     RT_www_path: str = ''
     RT_tmp_path: str = ''
-    RT_clocker_logs: str = ''
 
     RT_mt5_platform_home: str = ''
     RT_mt5_terminal_home: str = ''
-    RT_mt5_platform_crashes: str = ''
     RT_mt5_terminal_commons: str = ''
-
-    RT_mt5_instances_id: list[tuple[str, ...]] = None
-    RT_mt5_terminal_logs: str = ''
     RT_mt5_terminal_mql5_files: str = ''
-    RT_mt5_terminal_mql5_logs: str = ''
+    RT_mt5_instances_id: list[tuple[str, ...]] = None
 
     RT_files_csv_mask: str = ''
     RT_files_htm_mask: str = ''
-    RT_files_log_mask: str = ''
     RT_files_zip_mask: str = ''
     RT_files_all_mask: str = ''
 
@@ -69,7 +63,7 @@ class AppConfig:
     LC_xpath_concurso: str = ''
     LC_xpath_dezenas: str = ''
     LC_text_resultado: str = ''
-    LC_loteria_htm_mask: str = ''
+    LC_loterias_htm_mask: str = ''
     LC_loteria_htm_name: str = ''
     LC_ctrl_file_mask: str = ''
 
@@ -110,32 +104,19 @@ class AppConfig:
 
     # Parametrizacao do job para copiar/mover arquivos para outra estacao:
     MI_job_interval: int = 0
-
+    MI_local_folder: str = ''
     MI_shared_folder: str = ''
-    MI_cia_terminal_logs: str = ''
-    MI_cia_mql5_files: str = ''
-    MI_cia_mql5_logs: str = ''
-
-    MI_shared_app_base: str = ''
-    MI_shared_mt5_crashes: str = ''
-    MI_shared_app_www: str = ''
-    MI_shared_app_logs: str = ''
-    MI_shared_clocker_logs: str = ''
-    MI_shared_caixa_base: str = ''
-
+    MI_lothon_data: str = ''
+    MI_lothon_data_caixa: str = ''
+    MI_lothon_data_cache: str = ''
+    MI_sorteios_csv_mask: str = ''
+    MI_jogos_csv_mask: str = ''
+    MI_quanthon_data: str = ''
+    MI_quanthon_data_mtrader5: str = ''
+    MI_quanthon_data_ibovespa: str = ''
+    MI_quanthon_data_cotacoes: str = ''
     MI_ctrl_file_mask: str = ''
     MI_temp_safe_del: str = ''
-
-    MI_app_log_files_mask: str = ''
-    MI_app_log_mask: str = ''
-    MI_ctrl_log_files_mask: str = ''
-    MI_ctrl_log_mask: str = ''
-    MI_terminal_log_files_mask: str = ''
-    MI_terminal_log_mask: str = ''
-
-    MI_app_log_cutoff: int = 0
-    MI_ctrl_log_cutoff: int = 0
-    MI_terminal_log_cutoff: int = 0
 
     # Parametrizacao do mercado de FOREX:
     FX_feriados_forex: list[tuple[int, ...]] = None
@@ -153,22 +134,16 @@ class AppConfig:
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_www_path = parser.get("ROOT", "www_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
-        self.RT_clocker_logs = parser.get("ROOT", "clocker_logs")
 
         self.RT_mt5_platform_home = parser.get("ROOT", "mt5_platform_home")
         self.RT_mt5_terminal_home = parser.get("ROOT", "mt5_terminal_home")
-        self.RT_mt5_platform_crashes = parser.get("ROOT", "mt5_platform_crashes")
         self.RT_mt5_terminal_commons = parser.get("ROOT", "mt5_terminal_commons")
-
+        self.RT_mt5_terminal_mql5_files = parser.get("ROOT", "mt5_terminal_mql5_files")
         instances = parser.get("ROOT", "mt5_instances_id").split(',')
         self.RT_mt5_instances_id = [tuple(i.strip().split(';')) for i in instances]
-        self.RT_mt5_terminal_logs = parser.get("ROOT", "mt5_terminal_logs")
-        self.RT_mt5_terminal_mql5_files = parser.get("ROOT", "mt5_terminal_mql5_files")
-        self.RT_mt5_terminal_mql5_logs = parser.get("ROOT", "mt5_terminal_mql5_logs")
 
         self.RT_files_csv_mask = parser.get("ROOT", "files_csv_mask")
         self.RT_files_htm_mask = parser.get("ROOT", "files_htm_mask")
-        self.RT_files_log_mask = parser.get("ROOT", "files_log_mask")
         self.RT_files_zip_mask = parser.get("ROOT", "files_zip_mask")
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
 
@@ -187,7 +162,7 @@ class AppConfig:
         self.LC_xpath_concurso = parser.get("LOTERIA_CAIXA", "xpath_concurso")
         self.LC_xpath_dezenas = parser.get("LOTERIA_CAIXA", "xpath_dezenas")
         self.LC_text_resultado = parser.get("LOTERIA_CAIXA", "text_resultado")
-        self.LC_loteria_htm_mask = parser.get("LOTERIA_CAIXA", "loteria_htm_mask")
+        self.LC_loterias_htm_mask = parser.get("LOTERIA_CAIXA", "loterias_htm_mask")
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
         self.LC_ctrl_file_mask = parser.get("LOTERIA_CAIXA", "ctrl_file_mask")
 
@@ -234,31 +209,22 @@ class AppConfig:
         # Parametrizacao do job para copiar/mover arquivos para outra estacao:
         self.MI_job_interval = parser.getint("MOVE_INTRANET", "job_interval")
 
+        self.MI_local_folder = parser.get("MOVE_INTRANET", "local_folder")
         self.MI_shared_folder = parser.get("MOVE_INTRANET", "shared_folder")
-        self.MI_cia_terminal_logs = parser.get("MOVE_INTRANET", "cia_terminal_logs")
-        self.MI_cia_mql5_files = parser.get("MOVE_INTRANET", "cia_mql5_files")
-        self.MI_cia_mql5_logs = parser.get("MOVE_INTRANET", "cia_mql5_logs")
 
-        self.MI_shared_app_base = parser.get("MOVE_INTRANET", "shared_app_base")
-        self.MI_shared_mt5_crashes = parser.get("MOVE_INTRANET", "shared_mt5_crashes")
-        self.MI_shared_app_www = parser.get("MOVE_INTRANET", "shared_app_www")
-        self.MI_shared_app_logs = parser.get("MOVE_INTRANET", "shared_app_logs")
-        self.MI_shared_clocker_logs = parser.get("MOVE_INTRANET", "shared_clocker_logs")
-        self.MI_shared_caixa_base = parser.get("MOVE_INTRANET", "shared_caixa_base")
+        self.MI_lothon_data = parser.get("MOVE_INTRANET", "lothon_data")
+        self.MI_lothon_data_caixa = parser.get("MOVE_INTRANET", "lothon_data_caixa")
+        self.MI_lothon_data_cache = parser.get("MOVE_INTRANET", "lothon_data_cache")
+        self.MI_sorteios_csv_mask = parser.get("MOVE_INTRANET", "sorteios_csv_mask")
+        self.MI_jogos_csv_mask = parser.get("MOVE_INTRANET", "jogos_csv_mask")
+
+        self.MI_quanthon_data = parser.get("MOVE_INTRANET", "quanthon_data")
+        self.MI_quanthon_data_mtrader5 = parser.get("MOVE_INTRANET", "quanthon_data_mtrader5")
+        self.MI_quanthon_data_ibovespa = parser.get("MOVE_INTRANET", "quanthon_data_ibovespa")
+        self.MI_quanthon_data_cotacoes = parser.get("MOVE_INTRANET", "quanthon_data_cotacoes")
 
         self.MI_ctrl_file_mask = parser.get("MOVE_INTRANET", "ctrl_file_mask")
         self.MI_temp_safe_del = parser.get("MOVE_INTRANET", "temp_safe_del")
-
-        self.MI_app_log_files_mask = parser.get("MOVE_INTRANET", "app_log_files_mask")
-        self.MI_app_log_mask = parser.get("MOVE_INTRANET", "app_log_mask")
-        self.MI_ctrl_log_files_mask = parser.get("MOVE_INTRANET", "ctrl_log_files_mask")
-        self.MI_ctrl_log_mask = parser.get("MOVE_INTRANET", "ctrl_log_mask")
-        self.MI_terminal_log_files_mask = parser.get("MOVE_INTRANET", "terminal_log_files_mask")
-        self.MI_terminal_log_mask = parser.get("MOVE_INTRANET", "terminal_log_mask")
-
-        self.MI_app_log_cutoff = parser.getint("MOVE_INTRANET", "app_log_cutoff")
-        self.MI_ctrl_log_cutoff = parser.getint("MOVE_INTRANET", "ctrl_log_cutoff")
-        self.MI_terminal_log_cutoff = parser.getint("MOVE_INTRANET", "terminal_log_cutoff")
 
         # Parametrizacao do mercado de FOREX:
         datas = parser.get("FOREX", "feriados_forex").split(',')

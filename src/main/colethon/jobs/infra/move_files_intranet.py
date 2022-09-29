@@ -171,6 +171,22 @@ def move_source_destiny(src_path: str, dst_path: str, mask_files: str) -> None:
                      mask_files, src_path, dst_path, repr(ex))
 
 
+# realiza exclusao de arquivo temporario de flag, indicando inicio de processamento do Colethon:
+def delete_temp_flag(src_path: str) -> None:
+    temp_safe_del = os.path.join(src_path, app_config.MI_temp_safe_del)
+    # apaga o arquivo temporario anterior que indica final de processamento do job, se existir:
+    if os.path.isfile(temp_safe_del):
+        os.remove(temp_safe_del)
+
+
+# realiza criacao do arquivo temporario de flag, indicando final de processamento do Colethon:
+def create_temp_flag(src_path: str) -> None:
+    temp_safe_del = os.path.join(src_path, app_config.MI_temp_safe_del)
+    # nao precisa criar se ja existir o arquivo:
+    if not os.path.exists(temp_safe_del):  # apenas para evitar excecoes eventuais.
+        open(temp_safe_del, 'a').close()
+
+
 # realiza limpeza da pasta de logs, apagando os arquivos mais antigos (do corte pra tras):
 def delete_old_logs(src_path: str, mask_files: str, cut_off: int, mask_date: str) -> None:
     try:
@@ -321,10 +337,11 @@ class MoveFilesIntranet(AbstractJob):
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
-        # apaga o arquivo temporario anterior que indica final de processamento do job, se existir:
-        temp_safe_del = os.path.join(app_config.MI_shared_app_base, app_config.MI_temp_safe_del)
-        if os.path.isfile(temp_safe_del):
-            os.remove(temp_safe_del)
+        # apaga os arquivos temporarios anteriores que indicam final de processamento do job:
+        delete_temp_flag(app_config.MI_local_folder + app_config.MI_lothon_data)
+        delete_temp_flag(app_config.MI_local_folder + app_config.MI_quanthon_data)
+        delete_temp_flag(app_config.MI_shared_folder + app_config.MI_lothon_data)
+        delete_temp_flag(app_config.MI_shared_folder + app_config.MI_quanthon_data)
 
         # verifica se o computador esta conectado na rede interna e esta ok para copias:
         if intranet_online(app_config.MI_shared_folder):
@@ -334,7 +351,7 @@ class MoveFilesIntranet(AbstractJob):
             logger.error("Sem conexao com rede interna (Intranet).")
             return  # ao sair do job, sem cancelar, permite executar novamente depois.
 
-        # --- Copia arquivos dos terminais MT5 para outra estacao ----------------------
+        # --- Copia/Transferencia de arquivos dos terminais MT5 -------------------------------
 
         # identifica os terminais MT5 instalados na estacao:
         mt5_instances_id = app_config.RT_mt5_instances_id
@@ -350,69 +367,73 @@ class MoveFilesIntranet(AbstractJob):
                         idt, cia.upper())
 
             # arquivos de origem: faz replace com o id do terminal em cada instancia:
-            terminal_logs = app_config.RT_mt5_terminal_logs.replace('%id', idt)
             terminal_mql5_files = app_config.RT_mt5_terminal_mql5_files.replace('%id', idt)
-            terminal_mql5_logs = app_config.RT_mt5_terminal_mql5_logs.replace('%id', idt)
 
             # arquivos de destino: faz replace com o nome da corretora em cada instancia:
-            cia_terminal_logs = app_config.MI_cia_terminal_logs.replace('%id', cia)
-            cia_mql5_files = app_config.MI_cia_mql5_files.replace('%id', cia)
-            cia_mql5_logs = app_config.MI_cia_mql5_logs.replace('%id', cia)
+            quanthon_mql5_files = app_config.MI_quanthon_data_mtrader5.replace('%id', cia)
 
             # realiza copia/mocao de arquivos em cada pasta da origem para o respectivo destino:
-            copy_source_destiny(terminal_logs, cia_terminal_logs, app_config.RT_files_log_mask)
-            move_source_destiny(terminal_mql5_files, cia_mql5_files, app_config.RT_files_zip_mask)
-            copy_source_destiny(terminal_mql5_logs, cia_mql5_logs, app_config.RT_files_log_mask)
+            copy_source_destiny(terminal_mql5_files,
+                                app_config.MI_local_folder + quanthon_mql5_files,
+                                app_config.RT_files_zip_mask)
+
+            move_source_destiny(terminal_mql5_files,
+                                app_config.MI_shared_folder + quanthon_mql5_files,
+                                app_config.RT_files_zip_mask)
             logger.debug("Finalizou copia/mocao dos arquivos no terminal '%s' da corretora '%s'.",
                          idt, cia.upper())
 
-            # Uma vez movidos/copiados os arquivos de logging, eh preciso apaga-los, deixando apenas
-            # os arquivos gerados/tratados na data corrente, para evitar encher o HD.
-            delete_old_logs(terminal_logs, app_config.MI_terminal_log_files_mask,
-                            app_config.MI_terminal_log_cutoff, app_config.MI_terminal_log_mask)
-            delete_old_logs(terminal_mql5_logs, app_config.MI_terminal_log_files_mask,
-                            app_config.MI_terminal_log_cutoff, app_config.MI_terminal_log_mask)
+        # --- Copia/Transferencia dos arquivos baixados e gerados pelo Colethon ---------------
 
-        # --- Move arquivos 'crashes' da plataforma MT5 para outra estacao ----------------------
+        # arquivos de loterias da Caixa, contendo os resultados e jogos processados:
+        copy_source_destiny(app_config.RT_www_path,
+                            app_config.MI_local_folder + app_config.MI_lothon_data_caixa,
+                            app_config.LC_loterias_htm_mask)
+        copy_source_destiny(app_config.RT_www_path,
+                            app_config.MI_local_folder + app_config.MI_lothon_data_cache,
+                            app_config.MI_sorteios_csv_mask)
+        copy_source_destiny(app_config.RT_www_path,
+                            app_config.MI_local_folder + app_config.MI_lothon_data_cache,
+                            app_config.MI_jogos_csv_mask)
 
-        move_source_destiny(app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes,
-                            app_config.RT_files_all_mask)
-        logger.debug("Finalizou mocao dos arquivos 'crashes' do MT5 '%s' para outra estacao '%s'.",
-                     app_config.RT_mt5_platform_crashes, app_config.MI_shared_mt5_crashes)
+        move_source_destiny(app_config.RT_www_path,
+                            app_config.MI_shared_folder + app_config.MI_lothon_data_caixa,
+                            app_config.LC_loterias_htm_mask)
+        move_source_destiny(app_config.RT_www_path,
+                            app_config.MI_shared_folder + app_config.MI_lothon_data_cache,
+                            app_config.MI_sorteios_csv_mask)
+        move_source_destiny(app_config.RT_www_path,
+                            app_config.MI_shared_folder + app_config.MI_lothon_data_cache,
+                            app_config.MI_jogos_csv_mask)
 
-        # --- Move arquivos baixados e gerados pelo Colethon para outra estacao ---------------
-
-        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
-                            app_config.RT_files_zip_mask)
-        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_app_www,
+        # arquivos da B3 contendo cotacoes de acoes e ibovespa:
+        copy_source_destiny(app_config.RT_www_path,
+                            app_config.MI_local_folder + app_config.MI_quanthon_data_ibovespa,
                             app_config.RT_files_csv_mask)
-        move_source_destiny(app_config.RT_www_path, app_config.MI_shared_caixa_base,
-                            app_config.RT_files_htm_mask)
+        copy_source_destiny(app_config.RT_www_path,
+                            app_config.MI_local_folder + app_config.MI_quanthon_data_cotacoes,
+                            app_config.RT_files_zip_mask)
+
+        move_source_destiny(app_config.RT_www_path,
+                            app_config.MI_shared_folder + app_config.MI_quanthon_data_ibovespa,
+                            app_config.RT_files_csv_mask)
+        move_source_destiny(app_config.RT_www_path,
+                            app_config.MI_shared_folder + app_config.MI_quanthon_data_cotacoes,
+                            app_config.RT_files_zip_mask)
         logger.debug("Finalizou mocao dos arquivos baixados pelo Colethon para outra estacao.")
 
-        # --- Copia arquivos de logging gerados pelo Colethon e Digital-Clock -----------------
-
-        copy_source_destiny(app_config.RT_log_path, app_config.MI_shared_app_logs,
-                            app_config.RT_files_all_mask)
-        copy_source_destiny(app_config.RT_clocker_logs, app_config.MI_shared_clocker_logs,
-                            app_config.RT_files_all_mask)
-        logger.debug("Finalizou copia dos arquivos logging do Colethon e Clock para outra estacao.")
-
-        # Uma vez movidos/copiados os arquivos de logging, eh preciso apaga-los, deixando apenas os
-        # arquivos gerados/tratados na data corrente, para evitar encher o HD.
-        delete_old_logs(app_config.RT_log_path, app_config.MI_app_log_files_mask,
-                        app_config.MI_app_log_cutoff, app_config.MI_app_log_mask)
-        delete_old_ctrl(app_config.RT_tmp_path, app_config.MI_ctrl_log_files_mask,
-                        app_config.MI_ctrl_log_cutoff, app_config.MI_ctrl_log_mask)
+        # --- Procedimentos finais para encerramento do job -----------------------------------
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()
         logger.debug("Criado arquivo de controle '%s' para indicar que job foi concluido.",
                      ctrl_file_job)
 
-        # ao final do processamento, cria arquivo informando que as pastas podem ser copiadas:
-        if os.path.exists(app_config.MI_shared_app_base):  # apenas para evitar excecoes eventuais.
-            open(temp_safe_del, 'a').close()
+        # ao final do processamento, cria arquivos temporarios informando o final do job:
+        create_temp_flag(app_config.MI_local_folder + app_config.MI_lothon_data)
+        create_temp_flag(app_config.MI_local_folder + app_config.MI_quanthon_data)
+        create_temp_flag(app_config.MI_shared_folder + app_config.MI_lothon_data)
+        create_temp_flag(app_config.MI_shared_folder + app_config.MI_quanthon_data)
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
         _stopWatch = stopwatch(_startWatch)

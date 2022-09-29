@@ -57,7 +57,7 @@ TAGS_JLOTHON: str = "dplmqr"
 # relaciona os arquivos HTM referentes as loterias que foram baixadas do site da Caixa:
 def list_files_loterias() -> list[str]:
     # e identifica o path dos arquivos das loterias a serem processados:
-    loterias_htm_path = os.path.join(app_config.RT_www_path, app_config.LC_loteria_htm_mask)
+    loterias_htm_path = os.path.join(app_config.RT_www_path, app_config.LC_loterias_htm_mask)
 
     # verifica se ha arquivos D_*.HTM baixados so site da Caixa:
     files_htm_contents = glob.glob(loterias_htm_path)
@@ -67,7 +67,7 @@ def list_files_loterias() -> list[str]:
                      len_htm_contents)
     else:
         logger.debug("Nenhum arquivo '%s' de loteria encontrado para processamento dos sorteios.",
-                     app_config.LC_loteria_htm_mask)
+                     app_config.LC_loterias_htm_mask)
 
     return files_htm_contents
 
