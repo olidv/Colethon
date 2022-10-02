@@ -432,8 +432,7 @@ class MoveFilesIntranet(AbstractJob):
         # ao final do processamento, cria arquivos temporarios informando o final do job:
         create_temp_flag(app_config.MI_local_folder + app_config.MI_lothon_data)
         create_temp_flag(app_config.MI_local_folder + app_config.MI_quanthon_data)
-        create_temp_flag(app_config.MI_shared_folder + app_config.MI_lothon_data)
-        create_temp_flag(app_config.MI_shared_folder + app_config.MI_quanthon_data)
+        # o flag para o Lothon da estacao Samsung soh eh criado apos a geracao de palpites...
 
         # vai executar este job apenas uma vez, se for finalizado com sucesso:
         _stopWatch = stopwatch(_startWatch)
