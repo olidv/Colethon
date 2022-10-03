@@ -3,7 +3,7 @@ color 6F
 
 rem Printa a apresentacao do Colethon.
 echo.
-echo  MOVE SHARED   [ C:\APPS\INFINITE\LOTHON\BIN\MOVE_SHARED.BAT ]
+echo  MOVE SHARED   [ C:\APPS\INFINITE\COLETHON\BIN\MOVE_SHARED.BAT ]
 echo.
 echo.
 
@@ -52,6 +52,7 @@ move /Y Colethon\Lothon\data\cache\JC_*.csv D:\Workspace\Python\Lothon\data\cach
 echo.
 
 echo Copiando Arquivos para publicacao dos palpites do dia...
+mkdir C:\Users\qdev\Loto365\docs-templates\Social
 del /F /Q C:\Users\qdev\Loto365\docs-templates\Social\*.*
 move /Y Colethon\Lothon\Social\*.* C:\Users\qdev\Loto365\docs-templates\Social
 echo.
