@@ -1,4 +1,5 @@
 @echo off
+color 6F
 
 rem Printa a apresentacao do Colethon.
 echo.

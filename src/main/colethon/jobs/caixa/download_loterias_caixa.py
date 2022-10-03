@@ -79,6 +79,12 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
             with open(loteria_htm_path, "w", encoding="utf-8") as file_htm:
                 file_htm.write(browser.page_source)
 
+            # verifica se tudo ok com o arquivo HTM da loteria:
+            file_stats = os.stat(loteria_htm_path)
+            if file_stats.st_size < 100000:  # se o HTM tiver menos de 100k, nao baixou resultados.
+                logger.warning(f"Arquivo HTML da loteria {name} nao baixou resultados.")
+                return False  # instrui baixar novamente
+
         else:  # False == eh preciso fazer scraping para extrair o resultado da pagina:
             logger.debug("Iniciando scraping de resultados da Loteria '%s' em sua pagina.", name)
             # identifica o numero do ultimo concurso e a respectiva data do sorteio:
@@ -86,6 +92,7 @@ def download_resultados_loteria(browser: webdriver.Chrome, name: str, link: str,
             logger.debug(f"Titulo da Loteria: Concurso = {el_span.text}")
             titulo_concurso = el_span.text.split(' ')
             if len(titulo_concurso) != 3:  # ocorreu alguma mudanca na pagina...
+                logger.warning(f"Arquivo HTML da loteria {name} sofreu mudanças!")
                 return False
             id_concurso = int(titulo_concurso[1])
 
@@ -217,25 +224,30 @@ class DownloadLoteriasCaixa(AbstractJob):
 
         # percorre lista de loterias para processar cada download.
         for name, link, flag in caixa_loterias_url:
-            # inicia navegador para download com selenium:
-            browser = commons.open_webdriver_chrome(app_config.RT_www_path,
-                                                    app_config.CX_timeout_download)
-            if browser is None:  # se nao ativou o WebDriver nao tem como prosseguir...
-                # pode cancelar o job porque nao sera mais executado.
-                logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.",
-                             self.job_id)
-                if callback_func is not None:
-                    callback_func(self.job_id)
-                return  # ao cancelar o job, nao sera mais executado novamente.
+            # ira repetir para cada loteria, ate baixar corretamente os concursos:
+            result_ok: bool = False
+            while not result_ok:
+                # inicia navegador para download com selenium:
+                browser = commons.open_webdriver_chrome(app_config.RT_www_path,
+                                                        app_config.CX_timeout_download)
+                if browser is None:  # se nao ativou o WebDriver nao tem como prosseguir...
+                    # pode cancelar o job porque nao sera mais executado.
+                    logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.",
+                                 self.job_id)
+                    if callback_func is not None:
+                        callback_func(self.job_id)
+                    return  # ao cancelar o job, nao sera mais executado novamente.
 
-            # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
-            logger.info("Iniciando download da loteria '%s' a partir do site '%s'...", name, link)
-            if download_resultados_loteria(browser, name, link, to_bool(flag)):
-                logger.info("Download dos resultados da Loteria '%s' efetuado com sucesso.", name)
-            else:
-                # se alguma das loterias apresentar erro, entao retorna mais tarde e tenta de novo:
-                logger.error("Erro ao executar download dos resultados da Loteria '%s'.", name)
-                return  # ao sair do job, sem cancelar, permite executar novamente depois.
+                # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
+                logger.info("Iniciando download da loteria '{name}' a partir do site '{link}'...")
+                result_ok = download_resultados_loteria(browser, name, link, to_bool(flag))
+                if result_ok:
+                    logger.info(f"Download dos resultados da Loteria '{name}' efetuado com "
+                                f"sucesso.")
+                else:
+                    # se alguma das loterias apresentar erro, entao tenta de novo:
+                    logger.error(f"Erro ao executar download dos resultados da Loteria '{name}'. "
+                                 f"Vai tentar novamente...")
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()

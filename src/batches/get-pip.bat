@@ -1,4 +1,5 @@
 @echo off
+color 6F
 
 echo Obtendo ultima versao do pip para Windows
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py

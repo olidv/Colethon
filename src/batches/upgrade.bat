@@ -1,5 +1,5 @@
 @echo off
-color F
+color 6F
 
 echo Verificando a versao atual do Python no sistema
 python --version
