@@ -43,6 +43,7 @@ echo Copiando Arquivos HTM contendo resultados das loterias da Caixa EF...
 copy /y Colethon\Lothon\data\caixa\D_*.htm C:\Apps\Infinite\Lothon\data\caixa
 move /Y Colethon\Lothon\data\caixa\D_*.htm D:\Workspace\Python\Lothon\data\caixa
 echo.
+copy /Y Colethon\Lothon\data\cache\D_MAIS-MILIONARIA.csv D:\Workspace\Python\Colethon\data
 copy /Y Colethon\Lothon\data\cache\D_*.csv C:\Apps\Infinite\Lothon\data\cache
 copy /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\Python\Lothon\data\cache
 move /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\Java\jLothon\data\cache
