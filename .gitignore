@@ -133,9 +133,20 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Several
-# data/
+# Visual Studio Code
+.vscode/
+.history/
+prettierignore.txt
+*.code-workspace
+
+# ---------------------------------------------------------
+
+#####
+# End of core ignore list, 
+# below put you custom 'per project' settings,
+# patterns or path.
+#####
+/etc/Colethon/
 logs/
 tmp/
 www/
-/etc/Colethon
