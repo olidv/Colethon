@@ -3,7 +3,7 @@ color E
 
 rem Printa a apresentacao do deploy:
 echo.
-echo  DEPLOY DO COLETHON   [ D:\WORKSPACE\PYTHON\COLETHON\ETC\DEPLOY.BAT ]
+echo  DEPLOY DO COLETHON   [ D:\WORKSPACE\INFINITE\COLETHON\ETC\DEPLOY.BAT ]
 echo.
 echo.
 
@@ -25,7 +25,7 @@ del /f /q www\*.*       1>nul  2>&1
 echo.
 
 echo Posicionando no diretorio do projeto
-cd /d D:\Workspace\Python\Colethon
+cd /d D:\Workspace\Infinite\Colethon
 echo.
 
 echo Copiando os arquivos do projeto

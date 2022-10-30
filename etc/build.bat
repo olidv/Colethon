@@ -3,7 +3,7 @@ color E
 
 rem Printa a apresentacao do build:
 echo.
-echo  BUILD DO COLETHON   [ D:\WORKSPACE\PYTHON\COLETHON\ETC\BUILD.BAT ]
+echo  BUILD DO COLETHON   [ D:\WORKSPACE\INFINITE\COLETHON\ETC\BUILD.BAT ]
 echo.
 echo.
 
