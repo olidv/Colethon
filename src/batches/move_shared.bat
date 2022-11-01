@@ -39,48 +39,45 @@ echo.
 echo Posicionando no diretorio D:\Publico
 cd /D D:\Publico
 
-echo Copiando Arquivos HTM contendo resultados das loterias da Caixa EF...
-copy /y Colethon\Loto365\Lothon\data\caixa\D_*.htm C:\Apps\Loto365\Lothon\data\caixa
-move /Y Colethon\Loto365\Lothon\data\caixa\D_*.htm D:\Workspace\Loto365\Lothon\data\caixa
+echo Copiando arquivos contendo resultados das loterias da Caixa EF...
+copy /y Colethon\Loto365\Lothon\data\caixa\D_*.htm C:\Apps\Loto365\Lothon\data\caixa\
+move /Y Colethon\Loto365\Lothon\data\caixa\D_*.htm D:\Workspace\Loto365\Lothon\data\caixa\
 echo.
-copy /Y Colethon\Loto365\Lothon\data\cache\D_MAIS-MILIONARIA.csv D:\Workspace\Infinite\Colethon\data
-copy /Y Colethon\Loto365\Lothon\data\cache\D_*.csv C:\Apps\Loto365\Lothon\data\cache
-copy /Y Colethon\Loto365\Lothon\data\cache\D_*.csv D:\Workspace\Loto365\Lothon\data\cache
-move /Y Colethon\Loto365\Lothon\data\cache\D_*.csv D:\Workspace\Loto365\jLothon\data\cache
+copy /Y Colethon\Loto365\Lothon\data\cache\D_MAIS-MILIONARIA.csv D:\Workspace\Infinite\Colethon\data\
+copy /Y Colethon\Loto365\Lothon\data\cache\D_*.csv C:\Apps\Loto365\Lothon\data\cache\
+copy /Y Colethon\Loto365\Lothon\data\cache\D_*.csv D:\Workspace\Loto365\Lothon\data\cache\
+move /Y Colethon\Loto365\Lothon\data\cache\D_*.csv D:\Workspace\Loto365\jLothon\data\cache\
 echo.
-copy /Y Colethon\Loto365\Lothon\data\cache\JC_*.csv C:\Apps\Loto365\Lothon\data\cache
-move /Y Colethon\Loto365\Lothon\data\cache\JC_*.csv D:\Workspace\Loto365\Lothon\data\cache
+copy /Y Colethon\Loto365\Lothon\data\cache\JC_*.csv C:\Apps\Loto365\Lothon\data\cache\
+move /Y Colethon\Loto365\Lothon\data\cache\JC_*.csv D:\Workspace\Loto365\Lothon\data\cache\
 echo.
-
-echo Copiando Arquivos para publicacao dos palpites do dia...
-mkdir C:\Users\qdev\Loto365\docs-templates\Social
-del /F /Q C:\Users\qdev\Loto365\docs-templates\Social\*.*
-move /Y Colethon\Loto365\Lothon\Social\*.* C:\Users\qdev\Loto365\docs-templates\Social
+copy /Y Colethon\Loto365\Lothon\data\palpite\*.csv C:\Apps\Loto365\Lothon\data\palpite\
+move /Y Colethon\Loto365\Lothon\data\palpite\*.csv D:\Workspace\Loto365\Lothon\data\palpite\
 echo.
 
-echo Copiando Arquivo CSV contendo a carteira do IBOVESP da Bolsa B3...
+echo Copiando arquivo CSV contendo a carteira do IBOVESP da Bolsa B3...
 copy /Y Colethon\Infinite\Quanthon\data\b3\ibovespa\IBOVDia_*.csv C:\Apps\Infinite\Quanthon\data\b3\ibovespa
 copy /Y Colethon\Infinite\Quanthon\data\b3\ibovespa\IBOVDia_*.csv C:\Apps\Infinite\Quanthon\data\b3\ibovespa
 move /Y Colethon\Infinite\Quanthon\data\b3\ibovespa\IBOVDia_*.csv D:\B3\Data\B3\Carteira_IBOV\%YYYY%\%HOJE%
 echo.
 
-echo Copiando Arquivos ZIP contendo cotacoes intraday da Bolsa B3...
+echo Copiando arquivos ZIP contendo cotacoes intraday da Bolsa B3...
 copy /Y Colethon\Infinite\Quanthon\data\b3\cotacoes\TradeIntraday_*.zip C:\Apps\Infinite\Quanthon\data\b3\cotacoes
 copy /Y Colethon\Infinite\Quanthon\data\b3\cotacoes\TradeIntraday_*.zip C:\Apps\Infinite\Quanthon\data\b3\cotacoes
 move /Y Colethon\Infinite\Quanthon\data\b3\cotacoes\TradeIntraday_*.zip D:\B3\Data\B3\Cotacoes_TRADEINTRADAY\%YYYY%\%HOJE%
 echo.
 
-echo Copiando Arquivos de cotacoes da corretora Genial...
+echo Copiando arquivos de cotacoes da corretora Genial...
 copy /Y Colethon\Infinite\Quanthon\data\mt5\genial\*.* C:\Apps\Infinite\Quanthon\data\mt5\genial
 copy /Y Colethon\Infinite\Quanthon\data\mt5\genial\*.* C:\Apps\Infinite\Quanthon\data\mt5\genial
 move /Y Colethon\Infinite\Quanthon\data\mt5\genial\*.* D:\B3\Data\Brasil\Genial_BookTick\mql5_files
 
-echo Copiando Arquivos de cotacoes da corretora Modal...
+echo Copiando arquivos de cotacoes da corretora Modal...
 copy /Y Colethon\Infinite\Quanthon\data\mt5\modal\*.* C:\Apps\Infinite\Quanthon\data\mt5\modal
 copy /Y Colethon\Infinite\Quanthon\data\mt5\modal\*.* C:\Apps\Infinite\Quanthon\data\mt5\modal
 move /Y Colethon\Infinite\Quanthon\data\mt5\modal\*.* D:\B3\Data\Brasil\Modal_BookTick\mql5_files
 
-echo Copiando Arquivos de cotacoes da corretora XM Global...
+echo Copiando arquivos de cotacoes da corretora XM Global...
 copy /Y Colethon\Infinite\Quanthon\data\mt5\xm\*.* C:\Apps\Infinite\Quanthon\data\mt5\xm
 copy /Y Colethon\Infinite\Quanthon\data\mt5\xm\*.* C:\Apps\Infinite\Quanthon\data\mt5\xm
 move /Y Colethon\Infinite\Quanthon\data\mt5\xm\*.* D:\B3\Data\Exterior\XM_Tick\mql5_files
