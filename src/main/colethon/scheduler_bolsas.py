@@ -16,11 +16,8 @@ import logging
 from queue import Queue
 
 # Libs/Frameworks modules
-import schedule
-
 # Own/Project modules
 from colethon.conf import app_config
-from colethon.util.parallel_task import run_threaded
 from colethon.jobs.bolsa.download_ibovespa_b3 import DownloadIbovespaB3
 from colethon.jobs.bolsa.download_intraday_b3 import DownloadIntradayB3
 from colethon.jobs.caixa.download_loterias_caixa import DownloadLoteriasCaixa
@@ -42,36 +39,6 @@ queue_jobs = Queue(maxsize=10)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
-
-# verificar se ainda ha jobs pendentes a serem executados:
-def has_pending_jobs():
-    return (not queue_jobs.empty()) or (schedule.idle_seconds() is not None)
-
-
-# configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-def schedule_job(job_obj):
-    # o job sera executado em nova thread:
-    schedule.every(job_obj.job_interval).minutes.do(run_threaded, job_obj.run_job, cancel_job) \
-                                                .tag(job_obj.job_id)
-    logger.info(f"Agendado job '{job_obj.job_id}' a cada {job_obj.job_interval} minutos.")
-
-
-# efetua a execucao inicial do job, antes do schedule, para acelerar o processamento geral:
-def execute_job(job_obj):
-    logger.info(f"Execucao inicial do job '{job_obj.job_id}' antes do Schecule...")
-    # o job sera executado em nova thread:
-    run_threaded(job_obj.run_job, cancel_job)
-
-
-# cancela o job fornecido:
-def cancel_job(job_id):
-    schedule.clear(job_id)
-    logger.info(f"Cancelado job agendado: '{job_id}'.")
-
-
-# ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
 
@@ -79,7 +46,7 @@ def cancel_job(job_id):
 def main():
     logger.info("Iniciando agendamento dos jobs relativos a Bolsas de Valores...")
 
-    # --- Agenamento dos Jobs em Fila ----------------------------------------
+    # --- Agendamento dos Jobs em Fila ---------------------------------------
 
     # Download da Carteira Teorica do IBovespa
     queue_jobs.put(DownloadIbovespaB3())
@@ -99,39 +66,32 @@ def main():
     # Copiar/mover arquivos para outra estacao
     queue_jobs.put(MoveFilesIntranet())
 
-    # --- Monitoramento do Scheduler -----------------------------------------
+    # --- Monitoramento das Execucoes ----------------------------------------
 
-    # mantem valores em variaveis locais para melhor performance:
-    time_wait = app_config.SC_time_wait
-    # se nao for desejado continuar executando, valor de loop_on deve ser False (no).
-    loop_on = app_config.SC_loop_on
+    # mantem parametros em variaveis locais para melhor performance:
+    loop_wait = app_config.SC_time_wait
 
-    # mantem o script em execucao permanente enquanto os jobs estiverem agendados...
-    while loop_on or has_pending_jobs():  # tem mais jobs?
-        # atualiza variavel de controle para verificar se ainda ha jobs agendados:
-        idles = schedule.idle_seconds()
-        if idles is None:
-            # se finalizou o ultimo job agendado, verifica se ainda ha job enfileirado:
-            if not queue_jobs.empty():
-                job_obj = queue_jobs.get()
-                # se ha job enfileirado, entao agenda proximo job:
-                schedule_job(job_obj)
-                # atualiza idles com tempo ate a execucao do job recem agendado:
-                idles = schedule.idle_seconds()
-                # para nao ficar parado aguardando, ja forca uma 1a. execucao do job:
-                execute_job(job_obj)
-            elif loop_on:  # se estiver em 'loop-continuo':
-                # aguarda determinado tempo (configurado) se nao tiver mais jobs:
-                idles = time_wait
+    # mantem o script em execucao permanente enquanto houver jobs enfileirados...
+    while not queue_jobs.empty():  # tem mais jobs?
+        # obtem o proximo job e dispara sua execucao:
+        job_obj = queue_jobs.get()  # Fila do tipo FIFO: First In (put), First Out (get)
+        job_idle_seconds = job_obj.job_interval  # cada job tem seu tempo de espera especifico
 
-        # aguarda determinado tempo (em segundos) ate a proxima execucao:
-        if idles is not None and idles > 0:  # pode ser negativo, por isso o segundo teste
-            logger.info(f"Vai aguardar {idles} segundos ate a proxima execucao...")
-            # apenas esta thread do scheduler diario sera interrompida:
-            time.sleep(idles)
+        # executa o job em loop infinito, para o caso de ocorrer algum erro momentaneo
+        while True:
+            try:
+                ret_ok = job_obj.run_job()  # por enquanto, nao utiliza callbacks
+            except:
+                ret_ok = False
+            # se o processamento foi realizado com sucesso, segue para proximo job:
+            if ret_ok:
+                break
+            else:
+                # aguarda um tempo antes de executar novamente
+                time.sleep(job_idle_seconds)
 
-        # executa os jobs pendentes:
-        schedule.run_pending()
+        # aguarda periodo de tempo padrao, antes de executar proximo job:
+        time.sleep(loop_wait)
 
     # finalizados todos os jobs, informa que o processamento foi ok:
     logger.info("Finalizados todos os jobs relativos a Bolsas de Valores.")

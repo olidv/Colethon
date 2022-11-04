@@ -129,21 +129,24 @@ class DownloadIbovespaB3(AbstractJob):
     @property
     def job_interval(self) -> int:
         """
-        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+        Obtem a parametrizacao do intervalo de tempo, em segundos, para o scheduler.
 
-        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        :return: Medida de tempo para parametrizar o job no scheduler, em segundos.
         """
         interval = app_config.CI_job_interval
         return interval
 
     # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    def run_job(self, callback_func=None) -> None:
+    def run_job(self, callback_func=None) -> bool | Exception:
         """
         Efetua o download e processamento da Carteira Teorica do IBovespa.
 
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
+
+        :return Retorna True se o processamento foi realizado com sucesso,
+        ou False se ocorreu algum erro.
         """
         _startWatch = startwatch()
         logger.info("Iniciando job '%s' para download da Carteira Teorica do IBovespa.",
@@ -164,7 +167,7 @@ class DownloadIbovespaB3(AbstractJob):
                            self.job_id)
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
@@ -176,7 +179,7 @@ class DownloadIbovespaB3(AbstractJob):
         else:
             # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
             logger.error("Sem conexao com internet ou acesso ao site da B3.")
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # se tudo ok ate aqui, inicia navegador para download com selenium:
         browser = commons.open_webdriver_chrome(app_config.RT_www_path,
@@ -186,7 +189,7 @@ class DownloadIbovespaB3(AbstractJob):
             logger.error("O job '%s' nao pode prosseguir sem o WebDriver do Chrome.", self.job_id)
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
 
         try:
             # acessa site da B3 com selenium e simula download com click.
@@ -200,7 +203,7 @@ class DownloadIbovespaB3(AbstractJob):
             # se o site esta fora do ar ou o HTML foi alterado, interrompe e tenta depois:
             logger.error("Erro ao tentar localizar botao de download no site da B3:\n  %s",
                          repr(ex))
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # ao final, fecha navegador e encerra o webdriver...
         finally:
@@ -219,7 +222,7 @@ class DownloadIbovespaB3(AbstractJob):
         else:
             logger.error("Nenhum arquivo 'IBOVDia_??-??-??.csv' foi encontrado em '%s'",
                          app_config.RT_www_path)
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # dos arquivos CSV encontrados, identifica o mais recente (fez download agora):
         www_ibov_csv = max(www_contents, key=os.path.getctime)
@@ -238,10 +241,10 @@ class DownloadIbovespaB3(AbstractJob):
                          len_carteira_ibov, www_ibov_csv)
         elif len_carteira_ibov > 0:
             logger.error("Poucos ativos foram encontrados no arquivo '%s'", www_ibov_csv)
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
         else:
             logger.error("Nenhum ativo foi encontrado no arquivo '%s'", www_ibov_csv)
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # obtem os derivativos adicionais do arquivo INI da aplicacao.
         derivativos = app_config.CI_derivativos
@@ -262,5 +265,8 @@ class DownloadIbovespaB3(AbstractJob):
                     f"Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
+
+        # indica que o processamento foi realizado com sucesso:
+        return True
 
 # ----------------------------------------------------------------------------

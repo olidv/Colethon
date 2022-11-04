@@ -165,21 +165,24 @@ class DownloadLoteriasCaixa(AbstractJob):
     @property
     def job_interval(self) -> int:
         """
-        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+        Obtem a parametrizacao do intervalo de tempo, em segundos, para o scheduler.
 
-        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        :return: Medida de tempo para parametrizar o job no scheduler, em segundos.
         """
         interval = app_config.LC_job_interval
         return interval
 
     # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    def run_job(self, callback_func=None) -> None:
+    def run_job(self, callback_func=None) -> bool | Exception:
         """
         Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
+
+        :return Retorna True se o processamento foi realizado com sucesso,
+        ou False se ocorreu algum erro.
         """
         _startWatch = startwatch()
         logger.info("Iniciando job '%s' para download dos resultados das loterias da Caixa EF.",
@@ -200,7 +203,7 @@ class DownloadLoteriasCaixa(AbstractJob):
                            self.job_id)
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
@@ -210,7 +213,7 @@ class DownloadLoteriasCaixa(AbstractJob):
             logger.error("Nao ha loterias da Caixa configuradas em INI para processamento.")
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
 
         # verifica se o computador esta conectado a internet e se o site da Caixa esta ok.
         uri_site = app_config.CX_uri_site
@@ -220,7 +223,7 @@ class DownloadLoteriasCaixa(AbstractJob):
         else:
             # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
             logger.error("Sem conexao com internet ou acesso ao site da Caixa EF.")
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # percorre lista de loterias para processar cada download.
         for name, link, flag in caixa_loterias_url:
@@ -236,7 +239,7 @@ class DownloadLoteriasCaixa(AbstractJob):
                                  self.job_id)
                     if callback_func is not None:
                         callback_func(self.job_id)
-                    return  # ao cancelar o job, nao sera mais executado novamente.
+                    return True  # ao cancelar o job, nao sera mais executado novamente.
 
                 # acessa site da Caixa com selenium e baixa os resultados de cada loteria.
                 logger.info("Iniciando download da loteria '{name}' a partir do site '{link}'...")
@@ -260,5 +263,8 @@ class DownloadLoteriasCaixa(AbstractJob):
                     f"da Caixa EF. Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
+
+        # indica que o processamento foi realizado com sucesso:
+        return True
 
 # ----------------------------------------------------------------------------

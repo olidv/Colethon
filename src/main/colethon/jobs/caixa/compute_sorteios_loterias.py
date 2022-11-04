@@ -307,21 +307,24 @@ class ComputeSorteiosLoterias(AbstractJob):
     @property
     def job_interval(self) -> int:
         """
-        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+        Obtem a parametrizacao do intervalo de tempo, em segundos, para o scheduler.
 
-        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        :return: Medida de tempo para parametrizar o job no scheduler, em segundos.
         """
         interval = app_config.JC_job_interval
         return interval
 
     # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    def run_job(self, callback_func=None) -> None:
+    def run_job(self, callback_func=None) -> bool | Exception:
         """
         Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
+
+        :return Retorna True se o processamento foi realizado com sucesso,
+        ou False se ocorreu algum erro.
         """
         _startWatch = startwatch()
         logger.info("Iniciando job '%s' para processamento e filtro dos sorteios das loterias.",
@@ -338,7 +341,7 @@ class ComputeSorteiosLoterias(AbstractJob):
                            self.job_id)
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
@@ -349,7 +352,7 @@ class ComputeSorteiosLoterias(AbstractJob):
             logger.error("Nao ha arquivos de loterias da Caixa baixados para processamento.")
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
 
         # percorre lista de arquivos de loterias para processar os sorteios
         for file_name in files_loterias:
@@ -387,5 +390,8 @@ class ComputeSorteiosLoterias(AbstractJob):
                     f"da Caixa EF. Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
+
+        # indica que o processamento foi realizado com sucesso:
+        return True
 
 # ----------------------------------------------------------------------------

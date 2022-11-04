@@ -31,24 +31,6 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
-
-# configura as tarefas no scheduler de acordo com as opcoes de execucao do job:
-def schedule_job(job_obj):
-    # o job sera executado em nova thread:
-    schedule.every(job_obj.job_interval).minutes.do(run_threaded, job_obj.run_job, cancel_job) \
-                                                .tag(job_obj.job_id)
-    logger.info("Agendado job '%s' a cada %d minutos.", job_obj.job_id, job_obj.job_interval)
-
-
-# cancela o job fornecido:
-def cancel_job(job_id):
-    schedule.clear(job_id)
-    logger.info("Cancelado job agendado: '%s'.", job_id)
-
-
-# ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
 
@@ -60,7 +42,6 @@ def main():
 
     # mantem valores em variaveis locais para melhor performance:
     time_wait = app_config.SC_time_wait
-    loop_on = app_config.SC_loop_on
 
     # mantem o script em execucao permanente enquanto os jobs estiverem agendados...
     idles = schedule.idle_seconds()  # sera usado para verificar se ha jobs pendentes.

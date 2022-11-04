@@ -48,7 +48,6 @@ class AppConfig:
     RT_files_all_mask: str = ''
 
     # Parametrizacao do scheduler utilizado para o agendamento de jobs:
-    SC_loop_on: bool = False
     SC_time_wait: int = 0
 
     # Parametrizacao do site de loterias da Caixa EF:
@@ -148,7 +147,6 @@ class AppConfig:
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
 
         # Parametrizacao do scheduler utilizado para o agendamento de jobs:
-        self.SC_loop_on = parser.getboolean("SCHEDULER", "loop_on")
         self.SC_time_wait = parser.getint("SCHEDULER", "time_wait")
 
         # Parametrizacao do site de loterias da Caixa EF:

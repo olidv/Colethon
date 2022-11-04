@@ -39,18 +39,21 @@ class AbstractJob(ABC):
     @abstractmethod
     def job_interval(self) -> int:
         """
-        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+        Obtem a parametrizacao do intervalo de tempo, em segundos, para o scheduler.
 
-        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        :return: Medida de tempo para parametrizar o job no scheduler, em segundos.
         """
         pass
 
     @abstractmethod
-    def run_job(self, callback_func=None) -> None:
+    def run_job(self, callback_func=None) -> bool | Exception:
         """
         Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
+
+        :return Retorna True se o processamento foi realizado com sucesso,
+        ou False se ocorreu algum erro.
         """
         pass

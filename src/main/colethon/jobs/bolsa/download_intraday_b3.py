@@ -83,21 +83,24 @@ class DownloadIntradayB3(AbstractJob):
     @property
     def job_interval(self) -> int:
         """
-        Obtem a parametrizacao do intervalo de tempo, em minutos, para o scheduler.
+        Obtem a parametrizacao do intervalo de tempo, em segundos, para o scheduler.
 
-        :return: Medida de tempo para parametrizar o job no scheduler, em minutos.
+        :return: Medida de tempo para parametrizar o job no scheduler, em segundos.
         """
         interval = app_config.IB_job_interval
         return interval
 
     # --- METODOS DE INSTANCIA -----------------------------------------------
 
-    def run_job(self, callback_func=None) -> None:
+    def run_job(self, callback_func=None) -> bool | Exception:
         """
         Rotina de processamento do job, a ser executada quando o scheduler ativar o job.
 
         :param callback_func: Funcao de callback a ser executada ao final do processamento
         do job.
+
+        :return Retorna True se o processamento foi realizado com sucesso,
+        ou False se ocorreu algum erro.
         """
         _startWatch = startwatch()
         logger.info("Iniciando job '%s' para download das Cotacoes IntraDay da B3.", self.job_id)
@@ -117,7 +120,7 @@ class DownloadIntradayB3(AbstractJob):
                            self.job_id)
             if callback_func is not None:
                 callback_func(self.job_id)
-            return  # ao cancelar o job, nao sera mais executado novamente.
+            return True  # ao cancelar o job, nao sera mais executado novamente.
         else:
             logger.info("Arquivo de controle nao foi localizado. Job ira prosseguir.")
 
@@ -129,7 +132,7 @@ class DownloadIntradayB3(AbstractJob):
         else:
             # se esta sem acesso, interrompe e tenta novamente na proxima execucao.
             logger.error("Sem conexao com internet ou acesso ao site da B3.")
-            return  # ao sair do job, sem cancelar, permite executar novamente depois.
+            return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # se tudo ok ate aqui, procede aos downloads de 2 dias anteriores:
         yesterday = hoje  # a partir da data atual ira retroceder 2 dias uteis anteriores...
@@ -142,7 +145,7 @@ class DownloadIntradayB3(AbstractJob):
             # tenta fazer o download do arquivo ZIP conforme URL pra este job:
             if not download_cotacoes_intraday(yesterday):
                 # interrompe e tenta novamente na proxima execucao...
-                return  # ao sair do job, sem cancelar, permite executar novamente depois.
+                return False  # ao sair do job, sem cancelar, permite executar novamente depois.
 
         # salva arquivo de controle vazio para indicar que o job foi concluido com sucesso.
         open(ctrl_file_job, 'a').close()
@@ -155,5 +158,8 @@ class DownloadIntradayB3(AbstractJob):
                     f"Tempo gasto: {_stopWatch}")
         if callback_func is not None:
             callback_func(self.job_id)
+
+        # indica que o processamento foi realizado com sucesso:
+        return True
 
 # ----------------------------------------------------------------------------
