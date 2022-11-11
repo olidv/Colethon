@@ -48,14 +48,14 @@ copy /Y Colethon\Lothon\data\cache\D_MAIS-MILIONARIA.csv D:\Workspace\Infinite\C
 copy /Y Colethon\Lothon\data\cache\D_*.csv C:\Apps\Infinite\Lothon\data\cache\
 copy /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\Infinite\Lothon\data\cache\
 copy /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\Infinite\jLothon\data\cache\
-move /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\United-Sapiens\loto365-blogspot\data\sorteios\
+move /Y Colethon\Lothon\data\cache\D_*.csv D:\Workspace\Alara\Loto365\loto365-blogspot\data\sorteios\
 echo.
 copy /Y Colethon\Lothon\data\cache\JC_*.csv C:\Apps\Infinite\Lothon\data\cache\
 move /Y Colethon\Lothon\data\cache\JC_*.csv D:\Workspace\Infinite\Lothon\data\cache\
 echo.
 copy /Y Colethon\Lothon\data\palpite\*.csv C:\Apps\Infinite\Lothon\data\palpite\
 copy /Y Colethon\Lothon\data\palpite\*.csv D:\Workspace\Infinite\Lothon\data\palpite\
-move /Y Colethon\Lothon\data\palpite\*.csv D:\Workspace\United-Sapiens\loto365-blogspot\data\palpites\
+move /Y Colethon\Lothon\data\palpite\*.csv D:\Workspace\Alara\Loto365\loto365-blogspot\data\palpites\
 echo.
 
 echo Copiando arquivo CSV contendo a carteira do IBOVESP da Bolsa B3...
